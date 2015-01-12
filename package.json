@@ -1,0 +1,9 @@
+{
+  "name" : "NetworkExamples2",
+  "version" : "0.0.1",
+  "dependencies" : {
+    "machina" : "0.4.0",
+    "three" : "0.69.0",
+    "underscore" : "1.7.0"
+  }
+}
