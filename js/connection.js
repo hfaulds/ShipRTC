@@ -3,6 +3,8 @@ var _ = require('underscore');
 function Connection(adaptor, negotiator) {
   this.adaptor = adaptor;
   this.negotiator = negotiator;
+
+  this.cachedIceCandidates = [];
   this.bufferedMessagesOut = [];
   this.bufferedMessagesIn = [];
 }
@@ -45,6 +47,7 @@ Connection.prototype.receiveOffer = function(offerDesc) {
   };
 
   this.connection.setRemoteDescription(offerDesc, function() {
+    that.handleCachedIceCandidates();
     that.connection.createAnswer(function(answerDesc) {
       that.connection.setLocalDescription(answerDesc, function() {
         that.negotiator.handle("shareAnswer", answerDesc);
@@ -58,12 +61,23 @@ Connection.prototype.receiveOffer = function(offerDesc) {
 Connection.prototype.acceptAnswer = function(desc) {
   var that = this;
   this.connection.setRemoteDescription(desc, function() {
+    that.handleCachedIceCandidates();
     that.negotiator.handle("acceptAnswer", that);
   }, this.error);
 };
 
+Connection.prototype.handleCachedIceCandidates = function() {
+  _.each(this.cachedIceCandidates, function(candidate) {
+    this.connection.addIceCandidate(candidate);
+  }.bind(this));
+};
+
 Connection.prototype.addIceCandidate = function(candidate) {
-  this.connection.addIceCandidate(candidate);
+  if(this.connection.remoteDescription) {
+    this.connection.addIceCandidate(candidate);
+  } else {
+    this.cachedIceCandidates.push(candidate);
+  }
 };
 
 Connection.prototype.sendMsg = function(data) {
