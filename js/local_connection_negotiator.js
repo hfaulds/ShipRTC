@@ -3,14 +3,22 @@ Machina = require('machina');
 
 module.exports = function() {
   return new Machina.Fsm({
-    initialState: "disconnected",
+    initialState: "waitingForOfferer",
 
-    initialize: function() {
-      this.candidatesForAnswerer = [];
+    shareIceCandidate : function(con, candidate) {
+      if(con == this.offererCon) {
+        if(this.answererCon) {
+          this.answererCon.addIceCandidate(candidate, this.answererConId);
+        } else {
+          this.deferUntilTransition('waitingForAnswerer');
+        }
+      } else if(con == this.answererCon) {
+        this.offererCon.addIceCandidate(candidate, this.offererConId);
+      }
     },
 
     states : {
-      "disconnected" : {
+      "waitingForOfferer" : {
         "connect" : function(con) {
           this.offererConId = con.createOffer();
           this.offererCon = con;
@@ -20,79 +28,54 @@ module.exports = function() {
 
       "waitingForOffer" : {
         "connect" : function(con) {
-          this.answererCon = con;
+          this.deferUntilTransition('waitingForAnswerer');
         },
         "shareOffer" : function(offer) {
           this.offer = offer;
-          this.transition("waitingForAnswerCreation");
-        },
-        "shareIceCandidate" : function(con, candidates) {
-          if(con == this.offererCon) {
-            this.candidatesForAnswerer.push(candidate);
-          }
+          this.transition("waitingForAnswerer");
         },
       },
 
-      "waitingForAnswerCreation" : {
-        _onEnter: function() {
-          if(this.answererCon) {
-            this.answererConId = this.answererCon.receiveOffer(this.offer);
-          }
-        },
+      "waitingForAnswerer" : {
         "connect" : function(con) {
-          this.answererConId = con.receiveOffer(this.offer);
           this.answererCon = con;
+          this.answererConId = con.receiveOffer(this.offer);
+          this.transition("waitingForAnswerCreation");
         },
+        "shareIceCandidate" : function(con, candidate) {
+          this.shareIceCandidate(con, candidate);
+        }
+      },
+
+      "waitingForAnswerCreation" : {
         "shareAnswer" : function(answer) {
           this.answer = answer;
           this.transition("waitingForAnswerAccept");
         },
         "shareIceCandidate" : function(con, candidate) {
-          if(con == this.offererCon) {
-            this.candidatesForAnswerer.push(candidate);
-          } else {
-            this.offererCon.addIceCandidate(candidate, this.offererConId);
-          }
-        },
+          this.shareIceCandidate(con, candidate);
+        }
       },
 
       "waitingForAnswerAccept" : {
         _onEnter: function() {
-          _.each(this.candidatesForAnswerer, function(candidate) {
-            this.answererCon.addIceCandidate(candidate, this.answererConId);
-          }.bind(this));
-          this.candidatesForAnswerer = [];
           this.offererCon.acceptAnswer(this.answer, this.offererConId);
         },
         "acceptAnswer" : function(answer) {
           this.transition("waitingForIceCandidates");
         },
         "shareIceCandidate" : function(con, candidate) {
-          if(con == this.offererCon) {
-            this.answererCon.addIceCandidate(candidate, this.answererConId);
-          } else {
-            this.offererCon.addIceCandidate(candidate, this.offererConId);
-          }
-        },
+          this.shareIceCandidate(con, candidate);
+        }
       },
 
       "waitingForIceCandidates" : {
-        _onEnter: function() {
-          _.each(this.candidatesForAnswerer, function(candidate) {
-            this.answererCon.addIceCandidate(candidate, this.answererConId);
-          }.bind(this));
-          this.candidatesForAnswerer = [];
-        },
         "connected" : function(answer) {
           this.transition("connected");
         },
         "shareIceCandidate" : function(con, candidate) {
-          if(con == this.offererCon) {
-            this.answererCon.addIceCandidate(candidate, this.answererConId);
-          } else {
-            this.offererCon.addIceCandidate(candidate, this.offererConId);
-          }
-        },
+          this.shareIceCandidate(con, candidate);
+        }
       },
 
       "connected" : {
