@@ -1,11 +1,12 @@
 var _ = require('underscore');
-Machina = require('machina');
+var Machina = require('machina');
+var ConnectionAdaptor = require("./chrome_connection_adaptor");
 
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
-  initialize : function (adaptor, negotiator) {
-    this.adaptor = adaptor;
+  initialize : function (id, negotiator) {
+    this.id = id;
     this.negotiator = negotiator;
   },
 
@@ -28,13 +29,14 @@ module.exports = Machina.Fsm.extend({
     "disconnected" : {
       "connect" : function() {
         var that = this;
-        this.connection = new this.adaptor.RTCPeerConnection(null);
+        this.connection = new ConnectionAdaptor.RTCPeerConnection(null);
         this.connection.onicecandidate = function(e) {
           if (e.candidate) {
             that.negotiator.handle("shareIceCandidate", that, e.candidate);
           }
         };
         this.negotiator.handle("connect", this);
+        return this.id;
       },
       "createOffer" : function() {
         var that = this;
@@ -46,8 +48,6 @@ module.exports = Machina.Fsm.extend({
             that.negotiator.handle("shareOffer", desc);
           }, this.error);
         }, this.error);
-
-        return 0;
       },
       "receiveOffer" : function(offerDesc) {
         var that = this;
@@ -63,8 +63,6 @@ module.exports = Machina.Fsm.extend({
           }, this.error);
           that.transition("remoteDescriptionSet");
         }, this.error);
-
-        return 0;
       },
       "acceptAnswer" : function(desc) {
         var that = this;

@@ -1,14 +1,17 @@
-var Negotiator = require("./local_connection_negotiator");
+var LobbyServer = require("./lobby_server");
+var Server = require("./server");
+var Client = require("./client");
 
-var Connection = require("./connection");
-var ConnectionAdaptor = require("./chrome_connection_adaptor");
+var lobbyServer = new LobbyServer();
 
-var negotiator = new Negotiator();
+var server = new Server(lobbyServer);
+var client1 = new Client(lobbyServer);
+var client2 = new Client(lobbyServer);
 
-var con1 = new Connection(ConnectionAdaptor, negotiator);
-var con2 = new Connection(ConnectionAdaptor, negotiator);
+var lobbyId = server.register().lobbyId;
+client1.connectToServer(lobbyId);
+client2.connectToServer(lobbyId);
 
-con1.handle("connect");
-con2.handle("connect");
-
-con1.handle("sendMessage", 'adsfasdf');
+server.sendMessage('server broadcast');
+client1.sendMessage('server receive client1');
+client2.sendMessage('server receive client2');
