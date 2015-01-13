@@ -8,7 +8,7 @@ var negotiator = new Negotiator();
 var con1 = new Connection(ConnectionAdaptor, negotiator);
 var con2 = new Connection(ConnectionAdaptor, negotiator);
 
-con1.connect();
-con2.connect();
+con1.handle("connect");
+con2.handle("connect");
 
-con1.sendMsg('adsfasdf');
+con1.handle("sendMessage", 'adsfasdf');

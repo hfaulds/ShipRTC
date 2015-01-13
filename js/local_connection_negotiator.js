@@ -8,19 +8,19 @@ module.exports = function() {
     shareIceCandidate : function(con, candidate) {
       if(con == this.offererCon) {
         if(this.answererCon) {
-          this.answererCon.addIceCandidate(candidate, this.answererConId);
+          this.answererCon.handle("addIceCandidate", candidate, this.offererConId);
         } else {
-          this.deferUntilTransition('waitingForAnswerer');
+          this.deferUntilTransition('waitingForAnswerCreation');
         }
       } else if(con == this.answererCon) {
-        this.offererCon.addIceCandidate(candidate, this.offererConId);
+        this.offererCon.handle("addIceCandidate", candidate, this.offererConId);
       }
     },
 
     states : {
       "waitingForOfferer" : {
         "connect" : function(con) {
-          this.offererConId = con.createOffer();
+          this.offererConId = con.handle("createOffer");
           this.offererCon = con;
           this.transition("waitingForOffer");
         }
@@ -34,12 +34,15 @@ module.exports = function() {
           this.offer = offer;
           this.transition("waitingForAnswerer");
         },
+        "shareIceCandidate" : function(con, candidate) {
+          this.shareIceCandidate(con, candidate);
+        }
       },
 
       "waitingForAnswerer" : {
         "connect" : function(con) {
           this.answererCon = con;
-          this.answererConId = con.receiveOffer(this.offer);
+          this.answererConId = con.handle("receiveOffer", this.offer);
           this.transition("waitingForAnswerCreation");
         },
         "shareIceCandidate" : function(con, candidate) {
@@ -59,7 +62,7 @@ module.exports = function() {
 
       "waitingForAnswerAccept" : {
         _onEnter: function() {
-          this.offererCon.acceptAnswer(this.answer, this.offererConId);
+          this.offererCon.handle("acceptAnswer", this.answer, this.offererConId);
         },
         "acceptAnswer" : function(answer) {
           this.transition("waitingForIceCandidates");
