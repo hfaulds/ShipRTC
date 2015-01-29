@@ -1,17 +1,17 @@
-var LobbyServer = require("./lobby_server");
 var Server = require("./server");
 var Client = require("./client");
 
-var lobbyServer = new LobbyServer();
+var lobbyServerURL = "http://localhost:9999";
 
-var server = new Server(lobbyServer);
-var client1 = new Client(lobbyServer);
-var client2 = new Client(lobbyServer);
+var server = new Server(lobbyServerURL);
+var client1 = new Client(lobbyServerURL);
+var client2 = new Client(lobbyServerURL);
 
-var lobbyId = server.register().lobbyId;
-client1.connectToServer(lobbyId);
-client2.connectToServer(lobbyId);
+var lobbyId = server.register();
+//wait
+//client1.connectToServer(lobbyId);
+//client2.connectToServer(lobbyId);
 
-server.sendMessage('server broadcast');
-client1.sendMessage('server receive client1');
-client2.sendMessage('server receive client2');
+//server.sendMessage('server broadcast');
+//client1.sendMessage('server receive client1');
+//client2.sendMessage('server receive client2');

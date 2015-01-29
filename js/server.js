@@ -1,38 +1,41 @@
 var Connection = require("./connection");
 var _ = require('underscore');
+var io = require('socket.io-client');
 
-function Server(lobbyServer) {
+function Server(lobbyServerUrl) {
+  var lobbyServer = io(lobbyServerUrl);
+  var connections = [];
+
+  var that = this;
+  lobbyServer.on('createConnection', function(negotiatorId) {
+    var connectionId = that.connections.length;
+    var connection = new Connection(connectionId, negotiatorId, lobbyServer);
+    connection.handle("connect");
+    that.connections.push(connection);
+  });
+
+  lobbyServer.on('createOffer', function(id) {
+    that.connections[id].handle("createOffer");
+  });
+
+  lobbyServer.on('receiveOffer', function(id, offer) {
+    that.connections[id].handle("receiveOffer", offer);
+  });
+
+  lobbyServer.on('acceptAnswer', function(id, answer) {
+    that.connections[id].handle("acceptAnswer", answer);
+  });
+
+  lobbyServer.on('addIceCandidate', function(id, candidate) {
+    that.connections[id].handle("addIceCandidate", candidate);
+  });
+
   this.lobbyServer = lobbyServer;
-  this.connections = [];
+  this.connections = connections;
 }
 
 Server.prototype.register = function() {
-  this.lobbyId = this.lobbyServer.registerGameServer(this);
-  return this;
-};
-
-Server.prototype.createConnection =  function(negotiator) {
-  var connectionId = this.connections.length;
-  var connection = new Connection(connectionId, negotiator);
-  connection.handle("connect");
-  this.connections.push(connection);
-  return connectionId;
-};
-
-Server.prototype.createOffer = function(id) {
-  this.connections[id].handle("createOffer");
-};
-
-Server.prototype.receiveOffer = function(id, offer) {
-  this.connections[id].handle("receiveOffer", offer);
-};
-
-Server.prototype.acceptAnswer = function(id, answer) {
-  this.connections[id].handle("acceptAnswer", answer);
-};
-
-Server.prototype.addIceCandidate = function(id, candidate) {
-  this.connections[id].handle("addIceCandidate", candidate);
+  this.lobbyServer.emit('registerGameServer');
 };
 
 Server.prototype.sendMessage = function(data) {

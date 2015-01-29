@@ -7,14 +7,14 @@ module.exports = Machina.Fsm.extend({
   shareIceCandidate : function(con, candidate) {
     if(con == this.offererCon) {
       if(this.answererCon) {
-        //this.answererCon.handle("addIceCandidate", this.offererConId, candidate);
-        this.answererCon.handle("addIceCandidate", candidate);
+        this.answererCon.emit("addIceCandidate", this.offererConId, candidate);
+        //this.answererCon.handle("addIceCandidate", candidate);
       } else {
         this.deferUntilTransition('waitingForAnswerCreation');
       }
     } else if(con == this.answererCon) {
-      //this.offererCon.handle("addIceCandidate", this.offererConId, candidate);
-      this.offererCon.handle("addIceCandidate", candidate);
+      this.offererCon.emit("addIceCandidate", this.offererConId, candidate);
+      //this.offererCon.handle("addIceCandidate", candidate);
     }
   },
 
@@ -24,8 +24,8 @@ module.exports = Machina.Fsm.extend({
         this.offererCon = con;
         this.offererConId = id;
 
-        //con.handle("createOffer", id);
-        con.handle("createOffer");
+        con.emit("createOffer", id);
+        //con.handle("createOffer");
 
         this.transition("waitingForOffer");
       }
@@ -49,8 +49,8 @@ module.exports = Machina.Fsm.extend({
         this.answererCon = con;
         this.answererConId = id;
 
-        //con.handle("receiveOffer", id, this.offer);
-        con.handle("receiveOffer", this.offer);
+        con.emit("receiveOffer", id, this.offer);
+        //con.handle("receiveOffer", this.offer);
 
         this.transition("waitingForAnswerCreation");
       },
@@ -71,10 +71,10 @@ module.exports = Machina.Fsm.extend({
 
     "waitingForAnswerAccept" : {
       _onEnter: function() {
-        //this.offererCon.handle("acceptAnswer", this.offererConId, this.answer);
-        this.offererCon.handle("acceptAnswer", this.answer);
+        this.offererCon.emit("acceptAnswer", this.offererConId, this.answer);
+        //this.offererCon.handle("acceptAnswer", this.answer);
       },
-      "acceptAnswer" : function(answer) {
+      "acceptAnswer" : function() {
         this.transition("waitingForIceCandidates");
       },
       "shareIceCandidate" : function(con, candidate) {

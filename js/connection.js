@@ -5,8 +5,9 @@ var ConnectionAdaptor = require("./chrome_connection_adaptor");
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
-  initialize : function (id, negotiator) {
+  initialize : function (id, negotiatorId, negotiator) {
     this.id = id;
+    this.negotiatorId = negotiatorId;
     this.negotiator = negotiator;
   },
 
@@ -32,10 +33,10 @@ module.exports = Machina.Fsm.extend({
         this.connection = new ConnectionAdaptor.RTCPeerConnection(null);
         this.connection.onicecandidate = function(e) {
           if (e.candidate) {
-            that.negotiator.handle("shareIceCandidate", that, e.candidate);
+            that.negotiator.emit("shareIceCandidate", negotiatorId, e.candidate);
           }
         };
-        this.negotiator.handle("connect", this);
+        this.negotiator.emit("connect", negotiatorId, this.id);
         return this.id;
       },
       "createOffer" : function() {
@@ -45,7 +46,7 @@ module.exports = Machina.Fsm.extend({
 
         this.connection.createOffer(function(desc) {
           that.connection.setLocalDescription(desc, function() {
-            that.negotiator.handle("shareOffer", desc);
+            that.negotiator.emit("shareOffer", negotiatorId, desc);
           }, this.error);
         }, this.error);
       },
@@ -58,7 +59,7 @@ module.exports = Machina.Fsm.extend({
         this.connection.setRemoteDescription(offerDesc, function() {
           that.connection.createAnswer(function(answerDesc) {
             that.connection.setLocalDescription(answerDesc, function() {
-              that.negotiator.handle("shareAnswer", answerDesc);
+              that.negotiator.emit("shareAnswer", negotiatorId, answerDesc);
             }, this.error);
           }, this.error);
           that.transition("remoteDescriptionSet");
@@ -67,7 +68,7 @@ module.exports = Machina.Fsm.extend({
       "acceptAnswer" : function(desc) {
         var that = this;
         this.connection.setRemoteDescription(desc, function() {
-          that.negotiator.handle("acceptAnswer", that);
+          that.negotiator.emit("acceptAnswer", negotiatorId);
           that.transition("remoteDescriptionSet");
         }, this.error);
       },
