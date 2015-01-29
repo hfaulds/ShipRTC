@@ -7,7 +7,7 @@ module.exports = Machina.Fsm.extend({
   shareIceCandidate : function(con, candidate) {
     if(con == this.offererCon) {
       if(this.answererCon) {
-        this.answererCon.emit("addIceCandidate", this.offererConId, candidate);
+        this.answererCon.emit("addIceCandidate", this.answererConId, candidate);
         //this.answererCon.handle("addIceCandidate", candidate);
       } else {
         this.deferUntilTransition('waitingForAnswerCreation');

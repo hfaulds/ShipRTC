@@ -15,7 +15,6 @@ LobbyServer.prototype.listen = function(port) {
   var that = this;
   this.io = Socket(that.server);
   that.server.listen(port, function(){
-    console.log("Express server listening on port %d", that.server.address().port);
   });
   that.app.get('/', function (req, res) {
     res.sendfile('examples.html');
@@ -25,14 +24,16 @@ LobbyServer.prototype.listen = function(port) {
   });
 
   that.io.on('connection', function(socket) {
-    socket.on('registerGameServer', function () {
-      var lobbyId = that.lobbies.length;
+    socket.on('registerGameServer', function (lobbyId) {
+      if(lobbyId === undefined) {
+        lobbyId = that.lobbies.length;
+      }
       that.lobbies[lobbyId] = socket;
     });
 
     socket.on('joinGameSever', function(lobbyId) {
       var negotiatorId = that.negotiators.length;
-      var negotiator = new Negotiator(io, negotiatorId);
+      var negotiator = new Negotiator();
       that.negotiators.push(negotiator);
 
       var lobbySocket = that.lobbies[lobbyId];
@@ -40,8 +41,7 @@ LobbyServer.prototype.listen = function(port) {
       socket.emit('createConnection', negotiatorId);
     });
 
-
-    socket.on("connect", function(negotiatorId, id) {
+    socket.on("startNegotiation", function(negotiatorId, id) {
       that.negotiators[negotiatorId].handle("connect", socket, id);
     });
 
@@ -57,7 +57,7 @@ LobbyServer.prototype.listen = function(port) {
       that.negotiators[negotiatorId].handle("acceptAnswer");
     });
 
-    socket.on("shareIceCandidate", function(negotiatorId, id, candidate) {
+    socket.on("shareIceCandidate", function(negotiatorId, candidate) {
       that.negotiators[negotiatorId].handle("shareIceCandidate", socket, candidate);
     });
   });

@@ -7,11 +7,15 @@ var server = new Server(lobbyServerURL);
 var client1 = new Client(lobbyServerURL);
 var client2 = new Client(lobbyServerURL);
 
-var lobbyId = server.register();
-//wait
-//client1.connectToServer(lobbyId);
-//client2.connectToServer(lobbyId);
+server.register(0);
+setTimeout(function() {
+  client1.connectToServer(0);
+  client2.connectToServer(0);
+}, 100);
 
-//server.sendMessage('server broadcast');
-//client1.sendMessage('server receive client1');
-//client2.sendMessage('server receive client2');
+setTimeout(function() {
+  server.sendMessage('from server');
+  client1.sendMessage('from client1');
+  client2.sendMessage('from client2');
+}, 500);
+

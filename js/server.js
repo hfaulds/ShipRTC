@@ -3,13 +3,13 @@ var _ = require('underscore');
 var io = require('socket.io-client');
 
 function Server(lobbyServerUrl) {
-  var lobbyServer = io(lobbyServerUrl);
+  var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
   var connections = [];
 
   var that = this;
   lobbyServer.on('createConnection', function(negotiatorId) {
     var connectionId = that.connections.length;
-    var connection = new Connection(connectionId, negotiatorId, lobbyServer);
+    var connection = new Connection(undefined, connectionId, negotiatorId, lobbyServer);
     connection.handle("connect");
     that.connections.push(connection);
   });
@@ -34,8 +34,8 @@ function Server(lobbyServerUrl) {
   this.connections = connections;
 }
 
-Server.prototype.register = function() {
-  this.lobbyServer.emit('registerGameServer');
+Server.prototype.register = function(lobbyId) {
+  this.lobbyServer.emit('registerGameServer', lobbyId);
 };
 
 Server.prototype.sendMessage = function(data) {

@@ -5,7 +5,7 @@ var ConnectionAdaptor = require("./chrome_connection_adaptor");
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
-  initialize : function (id, negotiatorId, negotiator) {
+  initialize : function (_, id, negotiatorId, negotiator) {
     this.id = id;
     this.negotiatorId = negotiatorId;
     this.negotiator = negotiator;
@@ -33,10 +33,10 @@ module.exports = Machina.Fsm.extend({
         this.connection = new ConnectionAdaptor.RTCPeerConnection(null);
         this.connection.onicecandidate = function(e) {
           if (e.candidate) {
-            that.negotiator.emit("shareIceCandidate", negotiatorId, e.candidate);
+            that.negotiator.emit("shareIceCandidate", that.negotiatorId, e.candidate);
           }
         };
-        this.negotiator.emit("connect", negotiatorId, this.id);
+        this.negotiator.emit("startNegotiation", this.negotiatorId, this.id);
         return this.id;
       },
       "createOffer" : function() {
@@ -46,7 +46,7 @@ module.exports = Machina.Fsm.extend({
 
         this.connection.createOffer(function(desc) {
           that.connection.setLocalDescription(desc, function() {
-            that.negotiator.emit("shareOffer", negotiatorId, desc);
+            that.negotiator.emit("shareOffer", that.negotiatorId, desc);
           }, this.error);
         }, this.error);
       },
@@ -56,10 +56,10 @@ module.exports = Machina.Fsm.extend({
           that.setupChannel(e.channel);
         };
 
-        this.connection.setRemoteDescription(offerDesc, function() {
+        this.connection.setRemoteDescription(new RTCSessionDescription(offerDesc), function() {
           that.connection.createAnswer(function(answerDesc) {
             that.connection.setLocalDescription(answerDesc, function() {
-              that.negotiator.emit("shareAnswer", negotiatorId, answerDesc);
+              that.negotiator.emit("shareAnswer", that.negotiatorId, answerDesc);
             }, this.error);
           }, this.error);
           that.transition("remoteDescriptionSet");
@@ -67,8 +67,8 @@ module.exports = Machina.Fsm.extend({
       },
       "acceptAnswer" : function(desc) {
         var that = this;
-        this.connection.setRemoteDescription(desc, function() {
-          that.negotiator.emit("acceptAnswer", negotiatorId);
+        this.connection.setRemoteDescription(new RTCSessionDescription(desc), function() {
+          that.negotiator.emit("acceptAnswer", that.negotiatorId);
           that.transition("remoteDescriptionSet");
         }, this.error);
       },
@@ -82,7 +82,7 @@ module.exports = Machina.Fsm.extend({
 
     "remoteDescriptionSet" : {
       "addIceCandidate" : function(candidate) {
-        this.connection.addIceCandidate(candidate);
+        this.connection.addIceCandidate(new RTCIceCandidate(candidate));
       },
       "sendMessage" : function() {
         this.deferUntilTransition("connected");

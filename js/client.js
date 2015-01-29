@@ -2,11 +2,11 @@ var Connection = require("./connection");
 var io = require('socket.io-client');
 
 function Client(lobbyServerUrl) {
-  var lobbyServer = io(lobbyServerUrl);
+  var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
 
   var that = this;
   lobbyServer.on('createConnection', function(negotiatorId) {
-    that.connection = new Connection(0, negotiatorId, this.lobbyServer);
+    that.connection = new Connection(undefined, 9, negotiatorId, lobbyServer);
     that.connection.handle("connect");
   });
 
