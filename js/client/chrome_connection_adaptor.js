@@ -1,20 +1,60 @@
 var Bluebird = require("bluebird");
 Bluebird.promisifyAll(Object.getPrototypeOf(new webkitRTCPeerConnection(null)));
 
-webkitRTCPeerConnection.prototype.createOfferAsync = function() {
+function RTCPeerPromise() {
+  this.connection = new webkitRTCPeerConnection(null);
+}
+
+RTCPeerPromise.prototype.onIceCandidate = function(callback) {
+  this.connection.onicecandidate = callback;
+};
+
+RTCPeerPromise.prototype.onDataChannel = function(callback) {
+  this.connection.ondatachannel = callback;
+};
+
+
+RTCPeerPromise.prototype.getLocalDescription = function() {
+  return this.connection.localDescription;
+};
+
+
+RTCPeerPromise.prototype.createDataChannel = function(name, opts) {
+  return this.connection.createDataChannel(name, opts);
+};
+
+
+RTCPeerPromise.prototype.createOffer = function() {
   var that = this;
   return new Promise(function(resolve, reject) {
-    that.createOffer(resolve, reject);
+    that.connection.createOffer(resolve, reject);
   });
 };
 
-webkitRTCPeerConnection.prototype.createAnswerAsync = function() {
+RTCPeerPromise.prototype.setLocalDescription = function(desc) {
   var that = this;
   return new Promise(function(resolve, reject) {
-    that.createAnswer(resolve, reject);
+    that.connection.setLocalDescription(desc, resolve, reject);
   });
 };
 
-module.exports = {
-  RTCPeerConnection: webkitRTCPeerConnection
+RTCPeerPromise.prototype.setRemoteDescription = function(desc) {
+  var that = this;
+  return new Promise(function(resolve, reject) {
+    that.connection.setRemoteDescription(desc, resolve, reject);
+  });
 };
+
+RTCPeerPromise.prototype.createAnswer = function() {
+  var that = this;
+  return new Promise(function(resolve, reject) {
+    that.connection.createAnswer(resolve, reject);
+  });
+};
+
+
+RTCPeerPromise.prototype.addIceCandidate = function(candidate) {
+  this.connection.addIceCandidate(candidate);
+};
+
+module.exports = RTCPeerPromise;

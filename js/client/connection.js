@@ -1,6 +1,6 @@
 var _ = require('underscore');
 var Machina = require('machina');
-var ConnectionAdaptor = require("./chrome_connection_adaptor");
+var RTCPeerPromise = require("./chrome_connection_adaptor");
 
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
@@ -31,12 +31,12 @@ module.exports = Machina.Fsm.extend({
     "disconnected" : {
       "connect" : function() {
         var that = this;
-        this.connection = new ConnectionAdaptor.RTCPeerConnection(null);
-        this.connection.onicecandidate = function(e) {
+        this.connection = new RTCPeerPromise();
+        this.connection.onIceCandidate(function(e) {
           if (e.candidate) {
             that.negotiator.emit("shareIceCandidate", that.negotiatorId, e.candidate);
           }
-        };
+        });
         this.negotiator.emit("startNegotiation", this.negotiatorId, this.id);
         return this.id;
       },
@@ -45,28 +45,28 @@ module.exports = Machina.Fsm.extend({
 
         this.setupChannel(this.connection.createDataChannel("sendDataChannel", {reliable: false}));
 
-        that.connection.createOfferAsync().then(function(offer) {
-          return that.connection.setLocalDescriptionAsync(offer);
+        that.connection.createOffer().then(function(offer) {
+          return that.connection.setLocalDescription(offer);
         }).then(function() {
-          that.negotiator.emit("shareOffer", that.negotiatorId, that.connection.localDescription);
+          that.negotiator.emit("shareOffer", that.negotiatorId, that.connection.getLocalDescription());
         }).catch(function(e) {
           that.error(e);
         });
       },
       "receiveOffer" : function(offerDesc) {
         var that = this;
-        this.connection.ondatachannel = function (e) {
+        this.connection.onDataChannel(function (e) {
           that.setupChannel(e.channel);
-        };
+        });
 
         this.connection.
-          setRemoteDescriptionAsync(new RTCSessionDescription(offerDesc)).
+          setRemoteDescription(new RTCSessionDescription(offerDesc)).
           then(function() {
-            return that.connection.createAnswerAsync();
+            return that.connection.createAnswer();
           }).then(function(answerDesc) {
-            return that.connection.setLocalDescriptionAsync(answerDesc);
+            return that.connection.setLocalDescription(answerDesc);
           }).then(function() {
-            that.negotiator.emit("shareAnswer", that.negotiatorId, that.connection.localDescription);
+            that.negotiator.emit("shareAnswer", that.negotiatorId, that.connection.getLocalDescription());
             that.transition("remoteDescriptionSet");
           }).catch(function(e) {
             that.error(e);
@@ -74,7 +74,7 @@ module.exports = Machina.Fsm.extend({
       },
       "acceptAnswer" : function(desc) {
         var that = this;
-        this.connection.setRemoteDescriptionAsync(new RTCSessionDescription(desc)).
+        this.connection.setRemoteDescription(new RTCSessionDescription(desc)).
           then(function() {
             that.negotiator.emit("acceptAnswer", that.negotiatorId);
             that.transition("remoteDescriptionSet");
