@@ -5,6 +5,7 @@ var Socket = require('socket.io');
 function LobbyServer(port) {
   this.app = Express();
   this.server = require('http').Server(this.app);
+  this.io = Socket(this.server);
 
   this.lobbies = [];
   this.negotiators = [];
@@ -13,22 +14,21 @@ function LobbyServer(port) {
 
 LobbyServer.prototype.listen = function(port) {
   var that = this;
-  this.io = Socket(that.server);
-  that.server.listen(port, function(){
-  });
+  that.server.listen(port);
+
   that.app.get('/', function (req, res) {
     res.sendfile('examples.html');
   });
-  that.app.get('/bundle.js', function (req, res) {
+
+  that.app.get('/js/bundle.js', function (req, res) {
     res.sendfile('bundle.js');
   });
 
   that.io.on('connection', function(socket) {
-    socket.on('registerGameServer', function (lobbyId) {
-      if(lobbyId === undefined) {
-        lobbyId = that.lobbies.length;
-      }
+    socket.on('registerGameServer', function () {
+      var lobbyId = that.lobbies.length;
       that.lobbies[lobbyId] = socket;
+      socket.emit('serverRegistered', lobbyId);
     });
 
     socket.on('joinGameSever', function(lobbyId) {
