@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var Bluebird = require("bluebird");
 var Machina = require('machina');
 var ConnectionAdaptor = require("./chrome_connection_adaptor");
 
@@ -30,7 +31,7 @@ module.exports = Machina.Fsm.extend({
     "disconnected" : {
       "connect" : function() {
         var that = this;
-        this.connection = new ConnectionAdaptor.RTCPeerConnection(null);
+        this.connection = Bluebird.promisifyAll(new ConnectionAdaptor.RTCPeerConnection(null));
         this.connection.onicecandidate = function(e) {
           if (e.candidate) {
             that.negotiator.emit("shareIceCandidate", that.negotiatorId, e.candidate);
@@ -45,10 +46,11 @@ module.exports = Machina.Fsm.extend({
         this.setupChannel(this.connection.createDataChannel("sendDataChannel", {reliable: false}));
 
         this.connection.createOffer(function(desc) {
-          that.connection.setLocalDescription(desc, function() {
+          that.connection.setLocalDescriptionAsync(desc).
+          then(function() {
             that.negotiator.emit("shareOffer", that.negotiatorId, desc);
-          }, this.error);
-        }, this.error);
+          });
+        });
       },
       "receiveOffer" : function(offerDesc) {
         var that = this;
@@ -57,12 +59,13 @@ module.exports = Machina.Fsm.extend({
         };
 
         this.connection.setRemoteDescription(new RTCSessionDescription(offerDesc), function() {
-          that.connection.createAnswer(function(answerDesc) {
-            that.connection.setLocalDescription(answerDesc, function() {
+          that.connection.createAnswerAsync(function(answerDesc) {
+            that.connection.setLocalDescriptionAsync(answerDesc).
+            then(function() {
               that.negotiator.emit("shareAnswer", that.negotiatorId, answerDesc);
-            }, this.error);
+              that.transition("remoteDescriptionSet");
+            });
           }, this.error);
-          that.transition("remoteDescriptionSet");
         }, this.error);
       },
       "acceptAnswer" : function(desc) {
