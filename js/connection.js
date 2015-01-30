@@ -58,15 +58,16 @@ module.exports = Machina.Fsm.extend({
           that.setupChannel(e.channel);
         };
 
-        this.connection.setRemoteDescription(new RTCSessionDescription(offerDesc), function() {
-          that.connection.createAnswerAsync(function(answerDesc) {
-            that.connection.setLocalDescriptionAsync(answerDesc).
-            then(function() {
-              that.negotiator.emit("shareAnswer", that.negotiatorId, answerDesc);
+        this.connection.
+          setRemoteDescriptionAsync(new RTCSessionDescription(offerDesc)).
+          then(function() {
+          that.connection.createAnswer(function(answerDesc) {
+            that.connection.setLocalDescriptionAsync(answerDesc).then(function() {
+              that.negotiator.emit("shareAnswer", that.negotiatorId, that.connection.localDescription);
               that.transition("remoteDescriptionSet");
             });
-          }, this.error);
-        }, this.error);
+          });
+        });
       },
       "acceptAnswer" : function(desc) {
         var that = this;
