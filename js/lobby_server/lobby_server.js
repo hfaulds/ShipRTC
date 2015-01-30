@@ -1,4 +1,4 @@
-var Negotiator = require("./local_connection_negotiator");
+var Negotiator = require("./negotiator");
 var Express = require('express');
 var Socket = require('socket.io');
 

@@ -1,5 +1,5 @@
-var Server = require("./server");
-var Client = require("./client");
+var Server = require("./client/server");
+var Client = require("./client/client");
 
 var lobbyServerURL = "http://localhost:9999";
 
