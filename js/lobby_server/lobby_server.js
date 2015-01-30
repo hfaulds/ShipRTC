@@ -2,6 +2,10 @@ var Negotiator = require("./negotiator");
 var Express = require('express');
 var Socket = require('socket.io');
 
+require('node-jsx').install({extension: '.jsx'});
+React = require('react');
+var LobbyViewer = require('../components/lobby_viewer');
+
 function LobbyServer(port) {
   this.app = Express();
   this.server = require('http').Server(this.app);
@@ -17,7 +21,9 @@ LobbyServer.prototype.listen = function(port) {
   that.server.listen(port);
 
   that.app.get('/', function (req, res) {
-    res.sendfile('examples.html');
+    res.send(
+      React.renderToString(LobbyViewer())
+    );
   });
 
   that.app.get('/js/bundle.js', function (req, res) {
