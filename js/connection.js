@@ -1,5 +1,4 @@
 var _ = require('underscore');
-var Bluebird = require("bluebird");
 var Machina = require('machina');
 var ConnectionAdaptor = require("./chrome_connection_adaptor");
 
@@ -31,7 +30,7 @@ module.exports = Machina.Fsm.extend({
     "disconnected" : {
       "connect" : function() {
         var that = this;
-        this.connection = Bluebird.promisifyAll(new ConnectionAdaptor.RTCPeerConnection(null));
+        this.connection = new ConnectionAdaptor.RTCPeerConnection(null);
         this.connection.onicecandidate = function(e) {
           if (e.candidate) {
             that.negotiator.emit("shareIceCandidate", that.negotiatorId, e.candidate);
@@ -45,11 +44,12 @@ module.exports = Machina.Fsm.extend({
 
         this.setupChannel(this.connection.createDataChannel("sendDataChannel", {reliable: false}));
 
-        this.connection.createOffer(function(desc) {
-          that.connection.setLocalDescriptionAsync(desc).
-          then(function() {
-            that.negotiator.emit("shareOffer", that.negotiatorId, desc);
-          });
+        that.connection.createOfferAsync().then(function(offer) {
+          return that.connection.setLocalDescriptionAsync(offer);
+        }).then(function() {
+          that.negotiator.emit("shareOffer", that.negotiatorId, that.connection.localDescription);
+        }).catch(function(e) {
+          that.error(e);
         });
       },
       "receiveOffer" : function(offerDesc) {
@@ -61,20 +61,25 @@ module.exports = Machina.Fsm.extend({
         this.connection.
           setRemoteDescriptionAsync(new RTCSessionDescription(offerDesc)).
           then(function() {
-          that.connection.createAnswer(function(answerDesc) {
-            that.connection.setLocalDescriptionAsync(answerDesc).then(function() {
-              that.negotiator.emit("shareAnswer", that.negotiatorId, that.connection.localDescription);
-              that.transition("remoteDescriptionSet");
-            });
+            return that.connection.createAnswerAsync();
+          }).then(function(answerDesc) {
+            return that.connection.setLocalDescriptionAsync(answerDesc);
+          }).then(function() {
+            that.negotiator.emit("shareAnswer", that.negotiatorId, that.connection.localDescription);
+            that.transition("remoteDescriptionSet");
+          }).catch(function(e) {
+            that.error(e);
           });
-        });
       },
       "acceptAnswer" : function(desc) {
         var that = this;
-        this.connection.setRemoteDescription(new RTCSessionDescription(desc), function() {
-          that.negotiator.emit("acceptAnswer", that.negotiatorId);
-          that.transition("remoteDescriptionSet");
-        }, this.error);
+        this.connection.setRemoteDescriptionAsync(new RTCSessionDescription(desc)).
+          then(function() {
+            that.negotiator.emit("acceptAnswer", that.negotiatorId);
+            that.transition("remoteDescriptionSet");
+          }).catch(function(e) {
+            that.error(e);
+          });
       },
       "addIceCandidate" : function() {
         this.deferUntilTransition("remoteDescriptionSet");
