@@ -7,15 +7,20 @@ var server = new Server(lobbyServerURL);
 var client1 = new Client(lobbyServerURL);
 var client2 = new Client(lobbyServerURL);
 
-server.register(0);
-setTimeout(function() {
-  client1.connectToServer(0);
-  client2.connectToServer(0);
-}, 100);
+server.on("registered", function(lobbyId) {
+  console.log('server registered');
+  client1.handle('connectToServer', lobbyId);
+  client2.handle('connectToServer', lobbyId);
+});
 
-setTimeout(function() {
-  server.sendMessage('from server');
-  client1.sendMessage('from client1');
-  client2.sendMessage('from client2');
-}, 500);
+client1.on("connected", function() {
+  client1.handle('sendMessage', 'from client1');
+  server.handle('sendMessage', 'from server');
+});
 
+client2.on("connected", function() {
+  client2.handle('sendMessage', 'from client2');
+  server.handle('sendMessage', 'from server');
+});
+
+server.handle("register");

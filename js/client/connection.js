@@ -15,6 +15,7 @@ module.exports = Machina.Fsm.extend({
     this.channel = channel;
     this.channel.onopen = function() {
       this.transition("connected");
+      this.emit("connected");
     }.bind(this);
     this.channel.onmessage = function(e) {
       this.handle("receiveMessage", e.data);

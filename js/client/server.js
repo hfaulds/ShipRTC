@@ -1,47 +1,60 @@
 var Connection = require("./connection");
 var _ = require('underscore');
 var io = require('socket.io-client');
+var Machina = require('machina');
 
-function Server(lobbyServerUrl) {
-  var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
-  var connections = [];
+module.exports = Machina.Fsm.extend({
+  initialState: "unregistered",
 
-  var that = this;
-  lobbyServer.on('createConnection', function(negotiatorId) {
-    var connectionId = that.connections.length;
-    var connection = new Connection(undefined, connectionId, negotiatorId, lobbyServer);
-    connection.handle("connect");
-    that.connections.push(connection);
-  });
+  initialize : function(lobbyServerUrl) {
+    var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
+    var connections = [];
 
-  lobbyServer.on('createOffer', function(id) {
-    that.connections[id].handle("createOffer");
-  });
+    var that = this;
+    lobbyServer.on('serverRegistered', function(lobbyId) {
+      that.emit("registered", lobbyId);
+      that.transition("registered");
+    });
 
-  lobbyServer.on('receiveOffer', function(id, offer) {
-    that.connections[id].handle("receiveOffer", offer);
-  });
+    lobbyServer.on('createConnection', function(negotiatorId) {
+      var connectionId = that.connections.length;
+      var connection = new Connection(undefined, connectionId, negotiatorId, lobbyServer);
+      connection.handle("connect");
+      that.connections.push(connection);
+    });
 
-  lobbyServer.on('acceptAnswer', function(id, answer) {
-    that.connections[id].handle("acceptAnswer", answer);
-  });
+    lobbyServer.on('createOffer', function(id) {
+      that.connections[id].handle("createOffer");
+    });
 
-  lobbyServer.on('addIceCandidate', function(id, candidate) {
-    that.connections[id].handle("addIceCandidate", candidate);
-  });
+    lobbyServer.on('receiveOffer', function(id, offer) {
+      that.connections[id].handle("receiveOffer", offer);
+    });
 
-  this.lobbyServer = lobbyServer;
-  this.connections = connections;
-}
+    lobbyServer.on('acceptAnswer', function(id, answer) {
+      that.connections[id].handle("acceptAnswer", answer);
+    });
 
-Server.prototype.register = function(lobbyId) {
-  this.lobbyServer.emit('registerGameServer', lobbyId);
-};
+    lobbyServer.on('addIceCandidate', function(id, candidate) {
+      that.connections[id].handle("addIceCandidate", candidate);
+    });
 
-Server.prototype.sendMessage = function(data) {
-  _.each(this.connections, function(connection) {
-    connection.handle('sendMessage', data);
-  });
-};
+    this.lobbyServer = lobbyServer;
+    this.connections = connections;
+  },
 
-module.exports = Server;
+  states : {
+    "unregistered" : {
+      "register" : function() {
+        this.lobbyServer.emit('registerGameServer');
+      }
+    },
+    "registered" : {
+      "sendMessage" : function(data) {
+        _.each(this.connections, function(connection) {
+          connection.handle('sendMessage', data);
+        });
+      }
+    }
+  }
+});

@@ -1,42 +1,55 @@
 var Connection = require("./connection");
 var io = require('socket.io-client');
+var Machina = require('machina');
 
-function Client(lobbyServerUrl) {
-  var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
+module.exports = Machina.Fsm.extend({
+  initialState: "disconnected",
 
-  var that = this;
-  lobbyServer.on('createConnection', function(negotiatorId) {
-    that.connection = new Connection(undefined, 9, negotiatorId, lobbyServer);
-    that.connection.handle("connect");
-  });
+  initialize : function(lobbyServerUrl) {
+    var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
+    var that = this;
 
-  lobbyServer.on('createOffer', function(id) {
-    that.connection.handle("createOffer");
-  });
+    lobbyServer.on('createConnection', function(negotiatorId) {
+      that.connection = new Connection(undefined, 9, negotiatorId, lobbyServer);
+      that.connection.on("connected", function() {
+        that.transition("connected");
+        that.emit("connected");
+      });
+      that.connection.handle("connect");
+    });
 
-  lobbyServer.on('receiveOffer', function(id, offer) {
-    that.connection.handle("receiveOffer", offer);
-  });
+    lobbyServer.on('createOffer', function(id) {
+      that.connection.handle("createOffer");
+    });
 
-  lobbyServer.on('acceptAnswer', function(id, answer) {
-    that.connection.handle("acceptAnswer", answer);
-  });
+    lobbyServer.on('receiveOffer', function(id, offer) {
+      that.connection.handle("receiveOffer", offer);
+    });
 
-  lobbyServer.on('addIceCandidate', function(id, candidate) {
-    that.connection.handle("addIceCandidate", candidate);
-  });
+    lobbyServer.on('acceptAnswer', function(id, answer) {
+      that.connection.handle("acceptAnswer", answer);
+    });
 
-  this.lobbyServer = lobbyServer;
-}
+    lobbyServer.on('addIceCandidate', function(id, candidate) {
+      that.connection.handle("addIceCandidate", candidate);
+    });
 
-Client.prototype.connectToServer = function(lobbyId) {
-  this.lobbyServer.emit('joinGameSever', lobbyId);
-};
+    this.lobbyServer = lobbyServer;
+  },
 
-Client.prototype.sendMessage = function(data) {
-  if(this.connection) {
-    this.connection.handle('sendMessage', data);
+  states : {
+    "disconnected" : {
+      "connectToServer" : function(lobbyId) {
+        this.lobbyServer.emit('joinGameSever', lobbyId);
+      },
+      "sendMessage" : function() {
+        this.deferUntilTransition("connected");
+      }
+    },
+    "connected" : {
+      "sendMessage" : function(data) {
+        this.connection.handle('sendMessage', data);
+      }
+    }
   }
-};
-
-module.exports = Client;
+});
