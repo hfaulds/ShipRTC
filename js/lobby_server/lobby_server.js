@@ -1,6 +1,7 @@
 var Negotiator = require("./negotiator");
 var Express = require('express');
 var Socket = require('socket.io');
+var _ = require('underscore');
 
 require('node-jsx').install({extension: '.jsx'});
 React = require('react');
@@ -20,9 +21,14 @@ LobbyServer.prototype.listen = function(port) {
   var that = this;
   that.server.listen(port);
 
+  that.app.use('/', Express.static(__dirname + '/../../public'));
+
   that.app.get('/', function (req, res) {
     res.send(
-      React.renderToString(LobbyViewer())
+      React.renderToString(LobbyViewer({
+        lobbyServerUrl: "http://localhost:9999",
+        lobbies: _.times(that.lobbies.length, function(i) { return i; }),
+      }))
     );
   });
 
