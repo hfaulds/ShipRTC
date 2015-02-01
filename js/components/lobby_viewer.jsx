@@ -1,9 +1,11 @@
 var React = require('react');
 var _ = require('underscore');
+var ConnectionStateActions = require('../actions/connection_state_actions');
 
 module.exports = React.createFactory(
   React.createClass({
     getInitialState: function() {
+      ConnectionStateActions.setLobbyServerURL(this.props.lobbyServerURL);
       if(this.props.lobbies) {
         return({lobbies: this.props.lobbies});
       } else {
@@ -12,23 +14,18 @@ module.exports = React.createFactory(
         return({lobbies: lobbies});
       }
     },
-    joinServer: function(lobbyId) {
+
+    joinLobby: function(lobbyId) {
+      var ConnectionStateActions = require('../actions/connection_state_actions');
       return function(e) {
-        var Client = require("../client/client");
-        var client = new Client(this.state.lobbyServerURL);
-        client.on("connected", function() {
-          client.handle('sendMessage', 'from client1');
-        });
-        client.handle('connectToServer', lobbyId);
+        ConnectionStateActions.joinLobby(lobbyId);
       }.bind(this);
     },
-    createServer: function() {
-      var Server = require("../client/server");
-      var server = new Server(this.state.lobbyServerURL);
-      server.on("registered", function(lobbyId) {
-      });
-      server.handle("register");
+
+    createLobby: function() {
+      ConnectionStateActions.createLobby();
     },
+
     render: function() {
       return(
         <div>
@@ -41,7 +38,7 @@ module.exports = React.createFactory(
                       { lobby }
                     </div>
                     <div className="small-2 large-4 columns">
-                      <button onClick={this.joinServer(lobby)}>
+                      <button onClick={this.joinLobby(lobby)}>
                         join
                       </button>
                     </div>
@@ -56,7 +53,7 @@ module.exports = React.createFactory(
               <div className="small-2 large-4 columns">
               </div>
               <div className="small-2 large-4 columns">
-                <button onClick={this.createServer}>
+                <button onClick={this.createLobby}>
                   create server
                 </button>
               </div>
