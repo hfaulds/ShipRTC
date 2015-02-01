@@ -1,3 +1,3 @@
 var React = require('react');
-var LobbyViewer = require('./components/lobby_viewer.jsx');
-React.render(LobbyViewer(), document.querySelector("html"));
+var App = require('./components/app.jsx');
+React.render(App(), document.querySelector("html"));

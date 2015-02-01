@@ -7,7 +7,7 @@ module.exports = React.createFactory(
       if(this.props.lobbies) {
         return({lobbies: this.props.lobbies});
       } else {
-        var domNode = document.querySelector("html");
+        var domNode = document.getElementById('lobbies');
         var lobbies = JSON.parse(domNode.dataset.lobbies)
         return({lobbies: lobbies});
       }
@@ -31,54 +31,38 @@ module.exports = React.createFactory(
     },
     render: function() {
       return(
-        <html data-lobbies={JSON.stringify(this.state.lobbies)}>
-          <link rel="stylesheet" href="css/foundation.css"/>
-
-          <body>
-            <div className="contain-to-grid sticky">
-              <nav className="top-bar" data-topbar role="navigation" data-options="sticky_on: large">
-                <ul className="title-area">
-                  <li className="name">
-                    <h1><a href="#">Top Bar Title </a></h1>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-
-            <div id="lobbies">
-              {
-                this.state.lobbies.map(function(lobby) {
-                  return (
-                    <div className="row" key={lobby}>
-                      <div className="small-2 large-4 columns">
-                        { lobby }
-                      </div>
-                      <div className="small-2 large-4 columns">
-                        <button onClick={this.joinServer(lobby)}>
-                          join
-                        </button>
-                      </div>
+        <div>
+          <div id="lobbies" data-lobbies={JSON.stringify(this.state.lobbies)}>
+            {
+              this.state.lobbies.map(function(lobby) {
+                return (
+                  <div className="row" key={lobby}>
+                    <div className="small-2 large-4 columns">
+                      { lobby }
                     </div>
-                  )
-                }.bind(this))
-              }
-            </div>
+                    <div className="small-2 large-4 columns">
+                      <button onClick={this.joinServer(lobby)}>
+                        join
+                      </button>
+                    </div>
+                  </div>
+                )
+              }.bind(this))
+            }
+          </div>
 
-            <div className="panel">
-              <div className="row">
-                <div className="small-2 large-4 columns">
-                </div>
-                <div className="small-2 large-4 columns">
-                  <button onClick={this.createServer}>
-                    create server
-                  </button>
-                </div>
+          <div className="panel">
+            <div className="row">
+              <div className="small-2 large-4 columns">
+              </div>
+              <div className="small-2 large-4 columns">
+                <button onClick={this.createServer}>
+                  create server
+                </button>
               </div>
             </div>
-          </body>
-
-          <script type="text/javascript" src="/js/bundle.js"/>
-        </html>
+          </div>
+        </div>
       );
     }
   })

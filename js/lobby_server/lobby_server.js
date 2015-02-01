@@ -5,7 +5,7 @@ var _ = require('underscore');
 
 require('node-jsx').install({extension: '.jsx'});
 React = require('react');
-var LobbyViewer = require('../components/lobby_viewer');
+var App = require('../components/app');
 
 function LobbyServer(port) {
   this.app = Express();
@@ -25,7 +25,7 @@ LobbyServer.prototype.listen = function(port) {
 
   that.app.get('/', function (req, res) {
     res.send(
-      React.renderToString(LobbyViewer({
+      React.renderToString(App({
         lobbyServerUrl: "http://localhost:9999",
         lobbies: _.times(that.lobbies.length, function(i) { return i; }),
       }))
