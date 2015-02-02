@@ -6,13 +6,12 @@ var _ = require('underscore');
 require('node-jsx').install({extension: '.jsx'});
 React = require('react');
 var App = require('../components/app');
-
 function LobbyServer(port) {
   this.app = Express();
   this.server = require('http').Server(this.app);
   this.io = Socket(this.server);
 
-  this.lobbies = [];
+  this.lobbies = {};
   this.negotiators = [];
   this.port = port;
 }
@@ -27,7 +26,7 @@ LobbyServer.prototype.listen = function(port) {
     res.send(
       React.renderToString(App({
         lobbyServerUrl: "http://localhost:9999",
-        lobbies: _.times(that.lobbies.length, function(i) { return i; }),
+        lobbies: _.keys(that.lobbies),
       }))
     );
   });
@@ -38,19 +37,21 @@ LobbyServer.prototype.listen = function(port) {
 
   that.io.on('connection', function(socket) {
     socket.on('registerGameServer', function () {
-      var lobbyId = that.lobbies.length;
+      var lobbyId = socket.id;
       that.lobbies[lobbyId] = socket;
       socket.emit('serverRegistered', lobbyId);
     });
 
     socket.on('joinGameSever', function(lobbyId) {
-      var negotiatorId = that.negotiators.length;
-      var negotiator = new Negotiator();
-      that.negotiators.push(negotiator);
-
       var lobbySocket = that.lobbies[lobbyId];
-      lobbySocket.emit('createConnection', negotiatorId);
-      socket.emit('createConnection', negotiatorId);
+      if(lobbySocket) {
+        var negotiatorId = that.negotiators.length;
+        var negotiator = new Negotiator();
+        that.negotiators.push(negotiator);
+
+        lobbySocket.emit('createConnection', negotiatorId);
+        socket.emit('createConnection', negotiatorId);
+      }
     });
 
     socket.on("startNegotiation", function(negotiatorId, id) {
@@ -71,6 +72,10 @@ LobbyServer.prototype.listen = function(port) {
 
     socket.on("shareIceCandidate", function(negotiatorId, candidate) {
       that.negotiators[negotiatorId].handle("shareIceCandidate", socket, candidate);
+    });
+
+    socket.on('disconnect', function() {
+      delete that.lobbies[socket.id];
     });
   });
 };
