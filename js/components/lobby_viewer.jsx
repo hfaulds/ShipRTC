@@ -19,9 +19,10 @@ module.exports = React.createFactory(
 
     componentWillMount: function() {
       LobbyStore.listen(this._onChange)
-      if(global.document) {
-        LobbyActions.refreshLobbies();
-      }
+    },
+
+    componentDidMount: function() {
+      LobbyActions.refreshLobbies();
     },
 
     componentWillUnmount: function() {
