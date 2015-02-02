@@ -4,13 +4,9 @@ var connectionStateActions;
 function ConnectionStateActions() {
 }
 
-ConnectionStateActions.prototype.setLobbyServerURL = function(lobbyServerURL) {
-  this.lobbyServerURL = lobbyServerURL;
-};
-
 ConnectionStateActions.prototype.createLobby = function(lobbyId) {
   var Server = require("../client/server");
-  var server = new Server(this.lobbyServerURL);
+  var server = new Server(window.location.origin);
   server.on("registered", function(lobbyId) {
     connectionStateActions.connected();
   });
@@ -20,10 +16,9 @@ ConnectionStateActions.prototype.createLobby = function(lobbyId) {
 
 ConnectionStateActions.prototype.joinLobby = function(lobbyId) {
   var Client = require("../client/client");
-  var client = new Client(this.lobbyServerURL);
+  var client = new Client(window.location.origin);
   client.on("connected", function() {
     connectionStateActions.connected();
-    client.handle('sendMessage', 'client connected');
   });
   client.handle('connectToServer', lobbyId);
   this.dispatch();

@@ -7,7 +7,6 @@ var ConnectionStateActions = require('../actions/connection_state_actions');
 module.exports = React.createFactory(
   React.createClass({
     getInitialState: function() {
-      ConnectionStateActions.setLobbyServerURL(this.props.lobbyServerURL);
       if(this.props.lobbies) {
         return({lobbies: this.props.lobbies});
       } else {
@@ -37,7 +36,6 @@ module.exports = React.createFactory(
     },
 
     joinLobby: function(lobbyId) {
-      var ConnectionStateActions = require('../actions/connection_state_actions');
       return function(e) {
         ConnectionStateActions.joinLobby(lobbyId);
       }.bind(this);
