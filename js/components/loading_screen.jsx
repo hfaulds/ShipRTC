@@ -4,8 +4,14 @@ module.exports = React.createFactory(
   React.createClass({
     render: function() {
       return(
-        <div>
-          loading
+        <div style={{padding: '100px'}}>
+          <div className="row">
+            <div className="text-center panel small-4 small-offset-4 columns">
+              <h3>
+                Loading
+              </h3>
+            </div>
+          </div>
         </div>
       );
     }
