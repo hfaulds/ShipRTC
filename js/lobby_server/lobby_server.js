@@ -31,8 +31,10 @@ LobbyServer.prototype.listen = function(port) {
     );
   });
 
-  that.app.get('/js/bundle.js', function (req, res) {
-    res.sendfile('bundle.js');
+  that.app.get('/lobbies', function (req, res) {
+    res.send(JSON.stringify(
+      _.keys(that.lobbies)
+    ));
   });
 
   that.io.on('connection', function(socket) {

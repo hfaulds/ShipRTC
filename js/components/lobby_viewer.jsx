@@ -1,5 +1,7 @@
 var React = require('react');
 var _ = require('underscore');
+var LobbyStore = require('../stores/lobby_store');
+var LobbyActions = require('../actions/lobby_actions');
 var ConnectionStateActions = require('../actions/connection_state_actions');
 
 module.exports = React.createFactory(
@@ -9,10 +11,24 @@ module.exports = React.createFactory(
       if(this.props.lobbies) {
         return({lobbies: this.props.lobbies});
       } else {
-        var domNode = document.getElementById('lobbies');
-        var lobbies = JSON.parse(domNode.dataset.lobbies)
-        return({lobbies: lobbies});
+        return LobbyStore.getState();
       }
+    },
+
+    componentWillMount: function() {
+      LobbyStore.listen(this._onChange)
+      LobbyActions.refreshLobbies();
+    },
+
+    componentWillUnmount: function() {
+      LobbyStore.unlisten(this._onChange)
+    },
+
+    _onChange: function() {
+      this.setState(LobbyStore.getState())
+      setTimeout(function() {
+        LobbyActions.refreshLobbies();
+      }, 1000);
     },
 
     joinLobby: function(lobbyId) {
