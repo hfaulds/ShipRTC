@@ -2,7 +2,7 @@ var React = require('react');
 var _ = require('lodash');
 var LobbyStore = require('../stores/lobby_store');
 var LobbyActions = require('../actions/lobby_actions');
-var ConnectionStateActions = require('../actions/connection_state_actions');
+var ConnectionActions = require('../actions/connection_actions');
 
 module.exports = React.createFactory(
   React.createClass({
@@ -39,12 +39,12 @@ module.exports = React.createFactory(
 
     joinLobby: function(lobbyId) {
       return function(e) {
-        ConnectionStateActions.joinLobby(lobbyId);
+        ConnectionActions.joinLobby(lobbyId);
       }.bind(this);
     },
 
     createLobby: function() {
-      ConnectionStateActions.createLobby();
+      ConnectionActions.createLobby();
     },
 
     render: function() {

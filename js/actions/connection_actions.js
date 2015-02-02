@@ -1,31 +1,31 @@
 var alt = require('../alt');
 var Client = require("../client/client");
 var Server = require("../client/server");
-var connectionStateActions;
+var connectionActions;
 
-function ConnectionStateActions() {
+function ConnectionActions() {
 }
 
-ConnectionStateActions.prototype.createLobby = function(lobbyId) {
+ConnectionActions.prototype.createLobby = function(lobbyId) {
   var server = new Server(window.location.origin);
   server.on("registered", function(lobbyId) {
-    connectionStateActions.connected();
+    connectionActions.connected(server);
   });
   server.handle("register");
   this.dispatch();
 };
 
-ConnectionStateActions.prototype.joinLobby = function(lobbyId) {
+ConnectionActions.prototype.joinLobby = function(lobbyId) {
   var client = new Client(window.location.origin);
   client.on("connected", function() {
-    connectionStateActions.connected();
+    connectionActions.connected(client);
   });
   client.handle('connectToServer', lobbyId);
   this.dispatch();
 };
 
-ConnectionStateActions.prototype.connected = function() {
-  this.dispatch();
+ConnectionActions.prototype.connected = function(connection) {
+  this.dispatch(connection);
 };
 
-module.exports = connectionStateActions = alt.createActions(ConnectionStateActions);
+module.exports = connectionActions = alt.createActions(ConnectionActions);

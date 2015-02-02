@@ -2,31 +2,31 @@ var React = require('react');
 var Lobby = require('./lobby.jsx');
 var LobbyViewer = require('./lobby_viewer.jsx');
 var LoadingScreen = require('./loading_screen.jsx');
-var ConnectionStateStore = require('../stores/connection_state_store');
+var ConnectionStore = require('../stores/connection_store');
 
 module.exports = React.createFactory(
   React.createClass({
     getInitialState: function() {
-      return ConnectionStateStore.getState();
+      return ConnectionStore.getState();
     },
 
     componentWillMount: function() {
-      ConnectionStateStore.listen(this._onChange)
+      ConnectionStore.listen(this._onChange)
     },
 
     componentWillUnmount: function() {
-      ConnectionStateStore.unlisten(this._onChange)
+      ConnectionStore.unlisten(this._onChange)
     },
 
     _onChange: function() {
-      this.setState(ConnectionStateStore.getState())
+      this.setState(ConnectionStore.getState())
     },
 
     render: function() {
       var page;
-      if(this.state.connectionState == ConnectionStateStore.CONNECTED) {
+      if(this.state.connectionState == ConnectionStore.CONNECTED) {
         page = <Lobby />
-      } else if (this.state.connectionState == ConnectionStateStore.CONNECTING) {
+      } else if (this.state.connectionState == ConnectionStore.CONNECTING) {
         page = <LoadingScreen />
       } else {
         page = <LobbyViewer lobbyServerUrl={this.props.lobbyServerUrl} lobbies={this.props.lobbies}/>
