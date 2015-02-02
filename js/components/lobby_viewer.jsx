@@ -47,23 +47,30 @@ module.exports = React.createFactory(
 
     render: function() {
       return(
-        <div>
+        <div style={{padding: '100px'}}>
           <div id="lobbies" data-lobbies={JSON.stringify(this.state.lobbies)}>
+            <h1> Lobbies </h1>
             {
-              this.state.lobbies.map(function(lobby) {
-                return (
-                  <div className="row" key={lobby}>
-                    <div className="small-2 large-4 columns">
-                      { lobby }
-                    </div>
-                    <div className="small-2 large-4 columns">
-                      <button onClick={this.joinLobby(lobby)}>
-                        join
-                      </button>
-                    </div>
-                  </div>
-                )
-              }.bind(this))
+              <table style={{width: '100%'}}>
+                <tbody>
+                  {
+                    this.state.lobbies.map(function(lobby) {
+                      return (
+                        <tr key={lobby}>
+                          <td>
+                            { lobby }
+                          </td>
+                          <td>
+                            <button onClick={this.joinLobby(lobby)}>
+                              join
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    }.bind(this))
+                  }
+                </tbody>
+              </table>
             }
           </div>
 
