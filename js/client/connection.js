@@ -1,6 +1,6 @@
 var _ = require('lodash');
 var Machina = require('machina');
-var RTCPeerPromise = require("./chrome_connection_adaptor");
+var RTCPeerPromise = require("./rtc_peer_promise");
 
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
