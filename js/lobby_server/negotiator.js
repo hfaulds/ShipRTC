@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 Machina = require('machina');
 
 module.exports = Machina.Fsm.extend({

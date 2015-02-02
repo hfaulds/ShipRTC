@@ -1,5 +1,5 @@
 var React = require('react');
-var _ = require('underscore');
+var _ = require('lodash');
 var LobbyStore = require('../stores/lobby_store');
 var LobbyActions = require('../actions/lobby_actions');
 var ConnectionStateActions = require('../actions/connection_state_actions');

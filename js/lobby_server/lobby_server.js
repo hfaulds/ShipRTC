@@ -1,7 +1,7 @@
 var Negotiator = require("./negotiator");
 var Express = require('express');
 var Socket = require('socket.io');
-var _ = require('underscore');
+var _ = require('lodash');
 
 require('node-jsx').install({extension: '.jsx'});
 React = require('react');

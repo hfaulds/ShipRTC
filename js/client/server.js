@@ -1,5 +1,5 @@
 var Connection = require("./connection");
-var _ = require('underscore');
+var _ = require('lodash');
 var io = require('socket.io-client');
 var Machina = require('machina');
 

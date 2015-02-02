@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 var Machina = require('machina');
 var RTCPeerPromise = require("./chrome_connection_adaptor");
 

@@ -1,4 +1,4 @@
-var _ = require('underscore');
+var _ = require('lodash');
 
 module.exports = function() {
   var subjects = Array.prototype.slice.call(arguments);
