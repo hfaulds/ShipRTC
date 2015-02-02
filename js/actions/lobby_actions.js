@@ -1,5 +1,5 @@
 var alt = require('../alt');
-var http = require('http');
+var request = require('request');
 
 function LobbyActions() {
 }
@@ -7,17 +7,9 @@ function LobbyActions() {
 LobbyActions.prototype.refreshLobbies = function() {
   if(global.document) {
     var that = this;
-    http.get(global.document.URL + 'lobbies', function(res) {
-      if(res.statusCode == 200) {
-        var str = '';
-
-        res.on('data', function (chunk) {
-          str += chunk;
-        });
-
-        res.on('end', function () {
-          that.dispatch(JSON.parse(str));
-        });
+    request(global.document.URL + 'lobbies', function (error, response, data) {
+      if (!error && response.statusCode == 200) {
+        that.dispatch(JSON.parse(data));
       }
     });
   }

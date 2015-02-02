@@ -9,6 +9,7 @@
     "underscore" : "1.7.0",
     "machina" : "0.4.0",
     "bluebird" : "2.9.3",
+    "request" : "2.52.0",
 
     "react" : "0.12.2",
     "node-jsx" : "0.12.4",
