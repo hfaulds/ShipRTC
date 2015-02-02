@@ -28,7 +28,7 @@ module.exports = React.createFactory(
       this.setState(LobbyStore.getState())
       setTimeout(function() {
         LobbyActions.refreshLobbies();
-      }, 1000);
+      }, 5000);
     },
 
     joinLobby: function(lobbyId) {
