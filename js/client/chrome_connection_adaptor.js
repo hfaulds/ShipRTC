@@ -1,5 +1,4 @@
 var Bluebird = require("bluebird");
-Bluebird.promisifyAll(Object.getPrototypeOf(new webkitRTCPeerConnection(null)));
 
 function RTCPeerPromise() {
   this.connection = new webkitRTCPeerConnection(null);
