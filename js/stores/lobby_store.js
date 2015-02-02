@@ -2,10 +2,6 @@ var alt = require('../alt');
 var LobbyActions = require('../actions/lobby_actions');
 
 function LobbyStore() {
-  if(global.document) {
-    var domNode = document.getElementById('lobbies');
-    this.lobbies = JSON.parse(domNode.dataset.lobbies);
-  }
   this.bindActions(LobbyActions);
 }
 

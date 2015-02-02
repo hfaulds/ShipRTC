@@ -11,13 +11,17 @@ module.exports = React.createFactory(
       if(this.props.lobbies) {
         return({lobbies: this.props.lobbies});
       } else {
-        return LobbyStore.getState();
+        var domNode = document.getElementById('lobbies');
+        var lobbies = JSON.parse(domNode.dataset.lobbies);
+        return({lobbies: lobbies});
       }
     },
 
     componentWillMount: function() {
       LobbyStore.listen(this._onChange)
-      LobbyActions.refreshLobbies();
+      if(global.document) {
+        LobbyActions.refreshLobbies();
+      }
     },
 
     componentWillUnmount: function() {
