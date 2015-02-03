@@ -29,7 +29,7 @@ module.exports = React.createFactory(
       } else if (this.state.connectionState == ConnectionStore.CONNECTING) {
         page = <LoadingScreen />
       } else {
-        page = <LobbyViewer lobbyServerUrl={this.props.lobbyServerUrl} lobbies={this.props.lobbies}/>
+        page = <LobbyViewer defaultLobbies={this.props.lobbies}/>
       }
 
       return (

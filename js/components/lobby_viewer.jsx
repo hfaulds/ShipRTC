@@ -7,12 +7,10 @@ var ConnectionActions = require('../actions/connection_actions');
 module.exports = React.createFactory(
   React.createClass({
     getInitialState: function() {
-      if(this.props.lobbies) {
-        return({lobbies: this.props.lobbies});
+      if(this.props.defaultLobbies) {
+        return {lobbies: this.props.defaultLobbies};
       } else {
-        var domNode = document.getElementById('lobbies');
-        var lobbies = JSON.parse(domNode.dataset.lobbies);
-        return({lobbies: lobbies});
+        return LobbyStore.getState();
       }
     },
 

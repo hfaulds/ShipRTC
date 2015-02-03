@@ -17,6 +17,12 @@ module.exports = Machina.Fsm.extend({
       this.transition("connected");
       this.emit("connected");
     }.bind(this);
+    this.channel.onclose = function(e) {
+      this.emit("close");
+    }.bind(this);
+    this.channel.onerror = function(e) {
+      this.emit("error");
+    }.bind(this);
     this.channel.onmessage = function(e) {
       this.handle("receiveMessage", e.data);
     }.bind(this);

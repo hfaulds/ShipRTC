@@ -24,4 +24,8 @@ ConnectionStore.prototype.onConnected = function() {
   this.connectionState = ConnectionStore.CONNECTED;
 };
 
+ConnectionStore.prototype.onDisconnected = function() {
+  this.connectionState = ConnectionStore.DISCONNECTED;
+};
+
 module.exports = alt.createStore(ConnectionStore);
