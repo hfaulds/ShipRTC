@@ -3,8 +3,8 @@ var ConnectionActions = require('../actions/connection_actions');
 var ConnectionResponseActions = require('../actions/connection_response_actions');
 
 function MessageStore() {
-  this.bindAction(ConnectionActions.sendMessage, this.onSendMessage);
-  this.bindAction(ConnectionResponseActions.receiveMessage, this.onReceiveMessage);
+  this.bindActions(ConnectionActions);
+  this.bindActions(ConnectionResponseActions);
   this.messages = [];
 }
 

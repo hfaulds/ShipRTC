@@ -4,9 +4,8 @@ var ConnectionResponseActions = require('../actions/connection_response_actions'
 
 function ConnectionStore() {
   this.connectionState = ConnectionStore.DISCONNECTED;
-  this.bindAction(ConnectionActions.createLobby, this.onCreateLobby);
-  this.bindAction(ConnectionActions.joinLobby, this.onJoinLobby);
-  this.bindAction(ConnectionResponseActions.connected, this.onConnected);
+  this.bindActions(ConnectionActions);
+  this.bindActions(ConnectionResponseActions);
 }
 
 ConnectionStore.DISCONNECTED = 1;
