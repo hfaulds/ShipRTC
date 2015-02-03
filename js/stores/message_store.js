@@ -8,7 +8,8 @@ function MessageStore() {
   this.messages = [];
 }
 
-MessageStore.prototype.onSendMessage = function() {
+MessageStore.prototype.onSendMessage = function(message) {
+  this.messages.push(message);
 };
 
 MessageStore.prototype.onReceiveMessage = function(message) {
