@@ -3,7 +3,9 @@ var ConnectionActions = require('../actions/connection_actions');
 
 function ConnectionStore() {
   this.connectionState = ConnectionStore.DISCONNECTED;
-  this.bindActions(ConnectionActions);
+  this.bindAction(ConnectionActions.createLobby, this.onCreateLobby);
+  this.bindAction(ConnectionActions.joinLobby, this.onJoinLobby);
+  this.bindAction(ConnectionActions.connected, this.onConnected);
 }
 
 ConnectionStore.DISCONNECTED = 1;
@@ -14,13 +16,12 @@ ConnectionStore.prototype.onCreateLobby = function() {
   this.connectionState = ConnectionStore.CONNECTING;
 };
 
-ConnectionStore.prototype.onJoinLobby = function(lobbyServerURL) {
+ConnectionStore.prototype.onJoinLobby = function() {
   this.connectionState = ConnectionStore.CONNECTING;
 };
 
-ConnectionStore.prototype.onConnected = function(connection) {
+ConnectionStore.prototype.onConnected = function() {
   this.connectionState = ConnectionStore.CONNECTED;
-  this.connection = connection;
 };
 
 module.exports = alt.createStore(ConnectionStore);
