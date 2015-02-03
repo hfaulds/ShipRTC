@@ -26,25 +26,31 @@ module.exports = React.createFactory(
 
     componentWillUnmount: function() {
       LobbyStore.unlisten(this._onChange)
+      LobbyActions.cancelRefresh();
+      if(this.timeout) {
+        clearTimeout(this.timeout);
+      }
     },
 
     _onChange: function() {
       this.setState(LobbyStore.getState())
-      requestAnimationFrame(function() {
-        setTimeout(function() {
-          LobbyActions.refreshLobbies();
-        }, 5000);
-      });
+      var that = this;
+      this.timeout = setTimeout(function() {
+        this.timeout = undefined;
+        LobbyActions.refreshLobbies();
+      }, 5000);
     },
 
     joinLobby: function(lobbyId) {
       return function(e) {
         ConnectionActions.joinLobby(lobbyId);
+        e.preventDefault();
       }.bind(this);
     },
 
-    createLobby: function() {
+    createLobby: function(e) {
       ConnectionActions.createLobby();
+      e.preventDefault();
     },
 
     render: function() {

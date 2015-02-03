@@ -1,11 +1,11 @@
 var alt = require('../alt');
-var LobbyActions = require('../actions/lobby_actions');
+var LobbyServerActions = require('../actions/lobby_server_actions');
 
 function LobbyStore() {
-  this.bindActions(LobbyActions);
+  this.bindActions(LobbyServerActions);
 }
 
-LobbyStore.prototype.onRefreshLobbies = function(lobbies) {
+LobbyStore.prototype.onLobbiesRefreshed = function(lobbies) {
   this.lobbies = lobbies;
 };
 

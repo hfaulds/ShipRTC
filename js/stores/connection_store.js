@@ -1,11 +1,12 @@
 var alt = require('../alt');
 var ConnectionActions = require('../actions/connection_actions');
+var ConnectionResponseActions = require('../actions/connection_response_actions');
 
 function ConnectionStore() {
   this.connectionState = ConnectionStore.DISCONNECTED;
   this.bindAction(ConnectionActions.createLobby, this.onCreateLobby);
   this.bindAction(ConnectionActions.joinLobby, this.onJoinLobby);
-  this.bindAction(ConnectionActions.connected, this.onConnected);
+  this.bindAction(ConnectionResponseActions.connected, this.onConnected);
 }
 
 ConnectionStore.DISCONNECTED = 1;

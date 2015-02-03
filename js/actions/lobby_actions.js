@@ -1,17 +1,17 @@
 var alt = require('../alt');
-var request = require('request');
+var LobbyApiUtils = require('../utils/lobby_api_utils');
 
 function LobbyActions() {
 }
 
+LobbyActions.prototype.cancelRefresh = function() {
+  this.dispatch();
+  LobbyApiUtils.cancelRefresh();
+};
+
 LobbyActions.prototype.refreshLobbies = function() {
-  var that = this;
-  var url = [window.location.protocol, '//', window.location.host, '/lobbies'].join('');
-  request(url, function (error, response, data) {
-    if (!error && response.statusCode == 200) {
-      that.dispatch(JSON.parse(data));
-    }
-  });
+  this.dispatch();
+  LobbyApiUtils.refreshLobbies();
 };
 
 module.exports = alt.createActions(LobbyActions);
