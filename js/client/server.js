@@ -19,6 +19,9 @@ module.exports = Machina.Fsm.extend({
     lobbyServer.on('createConnection', function(negotiatorId) {
       var connectionId = that.connections.length;
       var connection = new Connection(undefined, connectionId, negotiatorId, lobbyServer);
+      connection.on("receiveMessage", function(message) {
+        that.emit("receiveMessage", message);
+      });
       connection.handle("connect");
       that.connections.push(connection);
     });

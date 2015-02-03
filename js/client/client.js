@@ -15,6 +15,9 @@ module.exports = Machina.Fsm.extend({
         that.transition("connected");
         that.emit("connected");
       });
+      that.connection.on("receiveMessage", function(message) {
+        that.emit("receiveMessage", message);
+      });
       that.connection.handle("connect");
     });
 
