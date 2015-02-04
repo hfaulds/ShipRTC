@@ -8,8 +8,7 @@ module.exports = Machina.Fsm.extend({
   initialize : function(lobbyServerUrl) {
     var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
     var that = this;
-
-    lobbyServer.on('createConnection', function(negotiatorId) {
+    lobbyServer.on('createConnection', function(negotiatorId, connectionName) {
       that.connection = new Connection(undefined, 9, negotiatorId, lobbyServer);
       that.connection.on("connected", function() {
         that.transition("connected");
@@ -22,7 +21,7 @@ module.exports = Machina.Fsm.extend({
         that.emit("error");
       });
       that.connection.on("receiveMessage", function(message) {
-        that.emit("receiveMessage", message);
+        that.emit("receiveMessage", message, connectionName);
       });
       that.connection.handle("connect");
     });

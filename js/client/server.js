@@ -16,11 +16,11 @@ module.exports = Machina.Fsm.extend({
       that.transition("registered");
     });
 
-    lobbyServer.on('createConnection', function(negotiatorId) {
+    lobbyServer.on('createConnection', function(negotiatorId, connectionName) {
       var connectionId = that.connections.length;
       var connection = new Connection(undefined, connectionId, negotiatorId, lobbyServer);
       connection.on("receiveMessage", function(message) {
-        that.emit("receiveMessage", message);
+        that.emit("receiveMessage", message, connectionName);
       });
       connection.handle("connect");
       that.connections.push(connection);

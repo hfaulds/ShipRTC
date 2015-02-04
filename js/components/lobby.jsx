@@ -33,9 +33,12 @@ module.exports = React.createFactory(
             {
               this.state.messages.map(function(message) {
                 return(
-                  <div className= "row">
+                  <div className="row" key={message.sender + message.id}>
+                    <div className="small-1 large-1 columns">
+                      { message.sender }
+                    </div>
                     <div className="small-2 large-4 columns">
-                      { message }
+                      { message.body }
                     </div>
                   </div>
                 )

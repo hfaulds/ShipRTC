@@ -51,8 +51,8 @@ LobbyServer.prototype.listen = function(port) {
         var negotiator = new Negotiator();
         that.negotiators.push(negotiator);
 
-        lobbySocket.emit('createConnection', negotiatorId);
-        socket.emit('createConnection', negotiatorId);
+        lobbySocket.emit('createConnection', negotiatorId, socket.id);
+        socket.emit('createConnection', negotiatorId, lobbySocket.id);
       }
     });
 

@@ -8,13 +8,11 @@ module.exports = Machina.Fsm.extend({
     if(con == this.offererCon) {
       if(this.answererCon) {
         this.answererCon.emit("addIceCandidate", this.answererConId, candidate);
-        //this.answererCon.handle("addIceCandidate", candidate);
       } else {
         this.deferUntilTransition('waitingForAnswerCreation');
       }
     } else if(con == this.answererCon) {
       this.offererCon.emit("addIceCandidate", this.offererConId, candidate);
-      //this.offererCon.handle("addIceCandidate", candidate);
     }
   },
 
@@ -25,7 +23,6 @@ module.exports = Machina.Fsm.extend({
         this.offererConId = id;
 
         con.emit("createOffer", id);
-        //con.handle("createOffer");
 
         this.transition("waitingForOffer");
       }
@@ -50,7 +47,6 @@ module.exports = Machina.Fsm.extend({
         this.answererConId = id;
 
         con.emit("receiveOffer", id, this.offer);
-        //con.handle("receiveOffer", this.offer);
 
         this.transition("waitingForAnswerCreation");
       },
@@ -72,7 +68,6 @@ module.exports = Machina.Fsm.extend({
     "waitingForAnswerAccept" : {
       _onEnter: function() {
         this.offererCon.emit("acceptAnswer", this.offererConId, this.answer);
-        //this.offererCon.handle("acceptAnswer", this.answer);
       },
       "acceptAnswer" : function() {
         this.transition("waitingForIceCandidates");
