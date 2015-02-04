@@ -1,17 +1,29 @@
 var React = require('react');
+var _ = require('lodash');
+
 var Lobby = require('./lobby.jsx');
 var LobbyViewer = require('./lobby_viewer.jsx');
 var LoadingScreen = require('./loading_screen.jsx');
+
+var LobbyActions = require('../actions/lobby_actions');
+
 var ConnectionStore = require('../stores/connection_store');
 
 module.exports = React.createFactory(
   React.createClass({
     getInitialState: function() {
-      return ConnectionStore.getState();
+      return _.merge(
+        ConnectionStore.getState(),
+        {page: <LobbyViewer defaultLobbies={this.props.lobbies}/>}
+      );
     },
 
     componentWillMount: function() {
       ConnectionStore.listen(this._onChange)
+    },
+
+    componentDidMount: function() {
+      LobbyActions.refreshLobbies();
     },
 
     componentWillUnmount: function() {
@@ -19,19 +31,21 @@ module.exports = React.createFactory(
     },
 
     _onChange: function() {
-      this.setState(ConnectionStore.getState())
+      var connectionState = ConnectionStore.getState().connectionState;
+
+      var page;
+      if(connectionState == ConnectionStore.CONNECTED) {
+        page = <Lobby />;
+      } else if (connectionState == ConnectionStore.CONNECTING) {
+        page = <LoadingScreen />;
+      } else {
+        page = <LobbyViewer defaultLobbies={this.props.lobbies}/>;
+      }
+
+      this.setState({page: page})
     },
 
     render: function() {
-      var page;
-      if(this.state.connectionState == ConnectionStore.CONNECTED) {
-        page = <Lobby />
-      } else if (this.state.connectionState == ConnectionStore.CONNECTING) {
-        page = <LoadingScreen />
-      } else {
-        page = <LobbyViewer defaultLobbies={this.props.lobbies}/>
-      }
-
       return (
         <html>
           <link rel="stylesheet" href="css/foundation.css"/>
@@ -50,7 +64,7 @@ module.exports = React.createFactory(
               </nav>
             </div>
 
-            { page }
+            { this.state.page }
 
             <script type="text/javascript" src="/js/bundle.js"/>
           </body>
@@ -59,3 +73,4 @@ module.exports = React.createFactory(
     }
   })
 )
+

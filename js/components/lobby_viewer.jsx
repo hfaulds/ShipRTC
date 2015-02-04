@@ -18,13 +18,9 @@ module.exports = React.createFactory(
       LobbyStore.listen(this._onChange)
     },
 
-    componentDidMount: function() {
-      LobbyActions.refreshLobbies();
-    },
-
     componentWillUnmount: function() {
-      LobbyStore.unlisten(this._onChange)
       LobbyActions.cancelRefresh();
+      LobbyStore.unlisten(this._onChange)
       if(this.timeout) {
         clearTimeout(this.timeout);
       }
