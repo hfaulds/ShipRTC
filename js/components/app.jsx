@@ -2,7 +2,7 @@ var React = require('react');
 var _ = require('lodash');
 
 var Lobby = require('./lobby.jsx');
-var LobbyViewer = require('./lobby_viewer.jsx');
+var LobbyBrowser = require('./lobby_browser.jsx');
 var LoadingScreen = require('./loading_screen.jsx');
 
 var LobbyActions = require('../actions/lobby_actions');
@@ -14,7 +14,7 @@ module.exports = React.createFactory(
     getInitialState: function() {
       return _.merge(
         ConnectionStore.getState(),
-        {page: <LobbyViewer defaultLobbies={this.props.lobbies}/>}
+        {page: <LobbyBrowser defaultLobbies={this.props.lobbies}/>}
       );
     },
 
