@@ -5,8 +5,6 @@ var Lobby = require('./lobby.jsx');
 var LobbyBrowser = require('./lobby_browser.jsx');
 var LoadingScreen = require('./loading_screen.jsx');
 
-var LobbyActions = require('../actions/lobby_actions');
-
 var ConnectionStore = require('../stores/connection_store');
 
 module.exports = React.createFactory(
@@ -22,10 +20,6 @@ module.exports = React.createFactory(
       ConnectionStore.listen(this._onChange)
     },
 
-    componentDidMount: function() {
-      LobbyActions.refreshLobbies();
-    },
-
     componentWillUnmount: function() {
       ConnectionStore.unlisten(this._onChange)
     },
@@ -39,7 +33,7 @@ module.exports = React.createFactory(
       } else if (connectionState == ConnectionStore.CONNECTING) {
         page = <LoadingScreen />;
       } else {
-        page = <LobbyViewer defaultLobbies={this.props.lobbies}/>;
+        page = <LobbyBrowser defaultLobbies={this.props.lobbies}/>;
       }
 
       this.setState({page: page})
