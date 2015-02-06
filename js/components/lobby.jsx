@@ -1,10 +1,18 @@
 var React = require('react');
+var _ = require('lodash');
+
 var MessageStore = require('../stores/message_store')
+
 var ConnectionActions = require('../actions/connection_actions');
+
+var ENTER_KEY_CODE = 13;
 
 module.exports = React.createClass({
   getInitialState: function() {
-    return MessageStore.getState();
+    return _.merge(
+      MessageStore.getState(),
+      { message: '' }
+    );
   },
 
   componentWillMount: function() {
@@ -19,9 +27,22 @@ module.exports = React.createClass({
     this.setState(MessageStore.getState())
   },
 
-  sendMessage: function(e) {
-    ConnectionActions.sendMessage('foo');
+  _sendMessage: function(e) {
+    if(this.state.message.length > 0) {
+      ConnectionActions.sendMessage(this.state.message);
+      this.setState({message: ''});
+    }
     e.preventDefault();
+  },
+
+  _changeMessage: function(e, value) {
+    if(!e.keyCode) {
+      this.setState({message: event.target.value});
+    } else if (e.keyCode === ENTER_KEY_CODE) {
+      ConnectionActions.sendMessage(this.state.message);
+      this.setState({message: ''});
+      e.preventDefault();
+    }
   },
 
   render: function() {
@@ -48,11 +69,14 @@ module.exports = React.createClass({
           <div className="row">
             <form>
               <div className="small-2 large-4 columns">
-                <textarea>
-                </textarea>
+                <textarea
+                  value={this.state.message}
+                  onKeyDown={this._changeMessage}
+                  onChange={this._changeMessage}
+                />
               </div>
               <div className="small-2 large-4 columns">
-                <button onClick={this.sendMessage}>
+                <button onClick={this._sendMessage}>
                   Send
                 </button>
               </div>
