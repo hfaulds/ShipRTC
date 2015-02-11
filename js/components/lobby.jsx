@@ -1,5 +1,6 @@
 var React = require('react');
 var _ = require('lodash');
+var Game = require('./game.jsx');
 
 var MessageStore = require('../stores/message_store')
 
@@ -48,6 +49,8 @@ module.exports = React.createClass({
   render: function() {
     return(
       <div style={{padding: '100px'}}>
+        <Game/>
+
         <div className="panel">
           {
             this.state.messages.map(function(message) {

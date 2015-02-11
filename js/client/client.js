@@ -21,7 +21,11 @@ module.exports = Machina.Fsm.extend({
         that.emit("error");
       });
       that.connection.on("receiveMessage", function(message) {
-        that.emit("receiveMessage", message, connectionName);
+        if(message == 'newPlayer') {
+          that.emit("newPlayer");
+        } else {
+          that.emit("receiveMessage", message, connectionName);
+        }
       });
       that.connection.handle("connect");
     });

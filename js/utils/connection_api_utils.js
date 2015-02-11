@@ -34,6 +34,9 @@ ConnectionApiUtils.addConnectionHandlers = function(connection) {
     ConnectionResponseActions.disconnected(e);
     ConnectionApiUtils.removeConnection(connection);
   });
+  connection.on("newPlayer", function() {
+    ConnectionResponseActions.newPlayer();
+  });
   connection.on("receiveMessage", function(message, sender) {
     ConnectionResponseActions.receiveMessage({
       sender: sender,
