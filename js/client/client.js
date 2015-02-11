@@ -21,8 +21,10 @@ module.exports = Machina.Fsm.extend({
         that.emit("error");
       });
       that.connection.on("receiveMessage", function(message) {
-        if(message == 'newPlayer') {
-          that.emit("newPlayer");
+        if(message.type == 'newPlayer') {
+          that.emit("newPlayer", message.playerId);
+        } else if(message.type == 'movePlayer') {
+          that.emit('movePlayer', message);
         } else {
           that.emit("receiveMessage", message, connectionName);
         }
@@ -59,6 +61,12 @@ module.exports = Machina.Fsm.extend({
       }
     },
     "connected" : {
+      "handleInput" : function(input) {
+        this.connection.handle('sendMessage', {
+          type: "playerInput",
+          input: input,
+        });
+      },
       "sendMessage" : function(data) {
         this.connection.handle('sendMessage', data);
       }

@@ -34,8 +34,11 @@ ConnectionApiUtils.addConnectionHandlers = function(connection) {
     ConnectionResponseActions.disconnected(e);
     ConnectionApiUtils.removeConnection(connection);
   });
-  connection.on("newPlayer", function() {
-    ConnectionResponseActions.newPlayer();
+  connection.on("newPlayer", function(id) {
+    ConnectionResponseActions.newPlayer(id);
+  });
+  connection.on("movePlayer", function(movement) {
+    ConnectionResponseActions.movePlayer(movement);
   });
   connection.on("receiveMessage", function(message, sender) {
     ConnectionResponseActions.receiveMessage({
@@ -43,6 +46,10 @@ ConnectionApiUtils.addConnectionHandlers = function(connection) {
       body: message,
     });
   });
+};
+
+ConnectionApiUtils.handleInput = function(input) {
+  this.connection.handle("handleInput", input);
 };
 
 ConnectionApiUtils.sendMessage = function(message) {

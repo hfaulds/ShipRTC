@@ -3,32 +3,23 @@ var ConnectionResponseActions = require('../actions/connection_response_actions'
 
 function PlayerStore() {
   this.bindActions(ConnectionResponseActions);
-  this.players = [{
-    sprite: "images/PlayerShips/playerShip2_blue.png",
-    position: {
-      x: 0,
-      y: 0,
-    },
-    rotation: 0
-  }];
+  this.players = {};
 }
 
-PlayerStore.prototype.onMovePlayer = function(player) {
-  this.players.push();
+PlayerStore.prototype.onMovePlayer = function(movement) {
+  var player = this.players[movement.playerId];
+  player.x = movement.position.x;
+  player.y = movement.position.y;
+  player.rotation = movement.position.rotation;
 };
 
-PlayerStore.prototype.onNewPlayer = function() {
-  this.players.push({
+PlayerStore.prototype.onNewPlayer = function(playerId) {
+  this.players[playerId] = {
     sprite: "images/PlayerShips/playerShip2_red.png",
-    position: {
-      x: 0,
-      y: 0,
-    },
+    x: 0,
+    y: 0,
     rotation: 0
-  });
-};
-
-PlayerStore.prototype.onPlayerMove = function(player) {
+  };
 };
 
 module.exports = alt.createStore(PlayerStore);
