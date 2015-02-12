@@ -15,7 +15,7 @@ module.exports = Machina.Fsm.extend({
   playerInputs: {},
 
   tick: function() {
-    window.requestAnimationFrame(this.tick.bind(this));
+    setTimeout(this.tick.bind(this), 10);
 
     var that = this;
     _.each(this.playerInputs, function(input, id) {
@@ -122,7 +122,7 @@ module.exports = Machina.Fsm.extend({
     },
     "registered" : {
       _onEnter: function() {
-        window.requestAnimationFrame(this.tick.bind(this));
+        setTimeout(this.tick.bind(this), 10);
       },
       "handleInput" : function(input) {
         this.playerInputs.server = input;

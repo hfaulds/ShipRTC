@@ -13,21 +13,27 @@ function InputActions() {
 }
 
 InputActions.prototype.inputChange = function(keyCode, direction) {
+  var newForward = forward;
+  var newRotation = rotation;
 
   if (keyCode == W) {
-    forward = 1 * direction;
+    newForward = 1 * direction;
   } else if (keyCode == S) {
-    forward = -1 * direction;
+    newForward = -1 * direction;
   } else if (keyCode == A) {
-    rotation = 1 * direction;
+    newRotation = 1 * direction;
   } else if (keyCode == D) {
-    rotation = -1 * direction;
+    newRotation = -1 * direction;
   }
 
-  ConnectionApiUtils.handleInput({
-    forward: forward,
-    rotation: rotation,
-  });
+  if(newForward != forward || newRotation != rotation) {
+    forward = newForward;
+    rotation = newRotation;
+    ConnectionApiUtils.handleInput({
+      forward: forward,
+      rotation: rotation,
+    });
+  }
 
   this.dispatch();
 };

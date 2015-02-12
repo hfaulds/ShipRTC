@@ -1,7 +1,11 @@
 var Bluebird = require("bluebird");
 
 function RTCPeerPromise() {
-  this.connection = new webkitRTCPeerConnection(null);
+  if(global.webkitRTCPeerConnection) {
+    this.connection = new webkitRTCPeerConnection(null);
+  } else if(global.mozRTCPeerConnection) {
+    this.connection = new mozRTCPeerConnection(null);
+  }
 }
 
 RTCPeerPromise.prototype.onIceCandidate = function(callback) {
