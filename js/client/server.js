@@ -1,10 +1,9 @@
-var Connection = require("./connection");
 var _ = require('lodash');
 var io = require('socket.io-client');
 var Machina = require('machina');
-if(global.document) {
-  var PIXI = require('pixi.js');
-}
+if(global.document) var PIXI = require('pixi.js');
+
+var ConnectionPool = require('./connection_pool');
 
 module.exports = Machina.Fsm.extend({
   initialState: "unregistered",
@@ -58,7 +57,7 @@ module.exports = Machina.Fsm.extend({
 
   initialize : function(lobbyServerUrl) {
     var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
-    var connections = [];
+    var connectionPool = new ConnectionPool(lobbyServer);
 
     var that = this;
     lobbyServer.on('serverRegistered', function(lobbyId) {
@@ -67,51 +66,35 @@ module.exports = Machina.Fsm.extend({
       that.emit("newPlayer", 'server');
     });
 
-    lobbyServer.on('createConnection', function(negotiatorId, connectionName) {
-      var connectionId = that.connections.length;
-      var connection = new Connection(undefined, connectionId, negotiatorId, lobbyServer);
-      connection.on("connected", function() {
-        that.playerPositions[connection.id] = { x: 0, y:0, rotation: 0 };
-        that.emit("newPlayer", connection.id);
-        _.each(_.without(connections, connection), function(con) {
-          con.handle('sendMessage', {type: 'newPlayer', playerId: connection.id});
-        });
-        _.each(that.playerPositions, function(position, id) {
-          connection.handle('sendMessage', {type: 'newPlayer', playerId: id});
+    connectionPool.on('addingClientToPool', function(connectionId) {
+      that.playerPositions[connectionId] = { x: 0, y:0, rotation: 0 };
+      that.emit("newPlayer", connectionId);
+      connectionPool.sendAll({
+        type: 'newPlayer',
+        playerId: connectionId
+      });
+    });
+
+    connectionPool.on('addedClientToPool', function(connectionId) {
+      _.each(that.playerPositions, function(position, id) {
+        connectionPool.sendTo(connectionId, {
+          type: 'newPlayer',
+          playerId: id
         });
       });
-      connection.on("receiveMessage", function(message) {
-        if(message.type == "playerInput") {
-          that.playerInputs[connection.id] = message.input;
-        } else {
-          that.emit("receiveMessage", message, connectionName);
-          _.each(_.without(connections, connection), function(con) {
-            con.handle('sendMessage', message);
-          });
-        }
-      });
-      connection.handle("connect");
-      that.connections.push(connection);
     });
 
-    lobbyServer.on('createOffer', function(id) {
-      that.connections[id].handle("createOffer");
-    });
-
-    lobbyServer.on('receiveOffer', function(id, offer) {
-      that.connections[id].handle("receiveOffer", offer);
-    });
-
-    lobbyServer.on('acceptAnswer', function(id, answer) {
-      that.connections[id].handle("acceptAnswer", answer);
-    });
-
-    lobbyServer.on('addIceCandidate', function(id, candidate) {
-      that.connections[id].handle("addIceCandidate", candidate);
+    connectionPool.on('receiveMessage', function(connectionId, message) {
+      if(message.type == "playerInput") {
+        that.playerInputs[connectionId] = message.input;
+      } else {
+        that.emit("receiveMessage", message, connectionId);
+        connectionPool.sendAllExcept(connectionId, message);
+      }
     });
 
     this.lobbyServer = lobbyServer;
-    this.connections = connections;
+    this.connectionPool = connectionPool;
   },
 
   states : {
@@ -128,9 +111,7 @@ module.exports = Machina.Fsm.extend({
         this.playerInputs.server = input;
       },
       "sendMessage" : function(data) {
-        _.each(this.connections, function(connection) {
-          connection.handle('sendMessage', data);
-        });
+        this.connectionPool.sendAll(data);
       }
     }
   }
