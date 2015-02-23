@@ -3,7 +3,7 @@ var Events = require("minivents");
 var _ = require('lodash');
 
 function ConnectionPool(lobbyServer) {
-  this.connections = [];
+  this.connections = {};
   this.events = new Events();
 
   var that = this;
@@ -30,14 +30,12 @@ function ConnectionPool(lobbyServer) {
 }
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
-  var connectionId = this.connections.length;
+  var connectionId = 'c' + _.keys(this.connections).length;
   var connection = new Connection(undefined, connectionId, negotiatorId, this.lobbyServer);
   var that = this;
 
   connection.on("connected", function() {
-    that.events.emit("addingClientToPool", connectionId);
-    that.connections.push(connection);
-    that.events.emit("addedClientToPool", connectionId);
+    that.events.emit("connected", connectionId);
   });
 
   connection.on("receiveMessage", function(message) {
@@ -45,7 +43,7 @@ ConnectionPool.prototype.createConnection = function(negotiatorId) {
   });
 
   connection.handle("connect");
-  that.connections.push(connection);
+  that.connections[connectionId] = connection;
 };
 
 ConnectionPool.prototype.sendAll = function(data) {

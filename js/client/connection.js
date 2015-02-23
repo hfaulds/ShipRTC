@@ -107,7 +107,10 @@ module.exports = Machina.Fsm.extend({
 
     "connected" : {
       "sendMessage" : function(data) {
-        this.channel.send(JSON.stringify(data));
+        var that = this;
+        setTimeout(function() {
+          that.channel.send(JSON.stringify(data));
+        }, 100);
       },
       "receiveMessage" : function(data) {
         this.emit("receiveMessage", JSON.parse(data));
