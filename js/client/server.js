@@ -3,43 +3,20 @@ var io = require('socket.io-client');
 var Machina = require('machina');
 if(global.document) var PIXI = require('pixi.js');
 
+var Simulation = require('./simulation');
 var ConnectionPool = require('./connection_pool');
 
 module.exports = Machina.Fsm.extend({
   initialState: "unregistered",
-
-  playerPositions: {
-    'server' : { x: 0, y:0, rotation: 0 }
-  },
-  playerInputs: {},
+  simulation: new Simulation(),
 
   tick: function() {
     setTimeout(this.tick.bind(this), 10);
 
+    this.simulation.tick();
+
     var that = this;
-    _.each(this.playerInputs, function(input, id) {
-      var position = that.playerPositions[id];
-
-      if(input.forward && input.forward !== 0) {
-        var movementDirection = new PIXI.Matrix();
-        movementDirection.translate(0, input.forward * 5);
-        movementDirection.rotate(position.rotation);
-
-        var movement = movementDirection.apply(new PIXI.Point());
-        position.x += movement.x;
-        position.y += movement.y;
-        position.dirty = true;
-      }
-
-      if(input.rotation && input.rotation !== 0) {
-        position.rotation += input.rotation * Math.PI / 64;
-        position.dirty = true;
-      }
-
-      that.playerPositions[id] = position;
-    });
-
-    _.each(this.playerPositions, function(position, id) {
+    _.each(this.simulation.playerPositions, function(position, id) {
       if(position.dirty) {
         that.handle("sendMessage", {
           type: "movePlayer",
@@ -67,7 +44,7 @@ module.exports = Machina.Fsm.extend({
     });
 
     connectionPool.on('addingClientToPool', function(connectionId) {
-      that.playerPositions[connectionId] = { x: 0, y:0, rotation: 0 };
+      that.simulation.playerPositions[connectionId] = { x: 0, y:0, rotation: 0 };
       that.emit("newPlayer", connectionId);
       connectionPool.sendAll({
         type: 'newPlayer',
@@ -76,7 +53,7 @@ module.exports = Machina.Fsm.extend({
     });
 
     connectionPool.on('addedClientToPool', function(connectionId) {
-      _.each(that.playerPositions, function(position, id) {
+      _.each(that.simulation.playerPositions, function(position, id) {
         connectionPool.sendTo(connectionId, {
           type: 'newPlayer',
           playerId: id
@@ -86,7 +63,7 @@ module.exports = Machina.Fsm.extend({
 
     connectionPool.on('receiveMessage', function(connectionId, message) {
       if(message.type == "playerInput") {
-        that.playerInputs[connectionId] = message.input;
+        that.simulation.playerInputs[connectionId] = message.input;
       } else {
         that.emit("receiveMessage", message, connectionId);
         connectionPool.sendAllExcept(connectionId, message);
@@ -108,7 +85,7 @@ module.exports = Machina.Fsm.extend({
         setTimeout(this.tick.bind(this), 10);
       },
       "handleInput" : function(input) {
-        this.playerInputs.server = input;
+        this.simulation.playerInputs.server = input;
       },
       "sendMessage" : function(data) {
         this.connectionPool.sendAll(data);
