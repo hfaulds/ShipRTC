@@ -18,5 +18,14 @@
     "reactify": "1.0.0",
     "node-jsx": "0.12.4",
     "alt": "0.12.3"
+  },
+  "devDependencies": {
+    "browserify": "latest",
+    "watchify": "latest"
+  },
+  "scripts": {
+    "run-server": "node js/lobby_server_main.js",
+    "build-js": "browserify -t reactify js/client_main.js -o public/js/bundle.js",
+    "watch-js": "watchify --debug -t reactify js/client_main.js -o public/js/bundle.js"
   }
 }
