@@ -45,11 +45,15 @@ module.exports = Machina.Fsm.extend({
         if(message.type == 'newPlayer') {
           that.emit("newPlayer", message.playerId);
         } else if(message.type == 'movePlayer') {
-          that.emit('movePlayer', message);
-          that.simulation.playerPositions[message.playerId] = message.position;
+          if(
+            message.playerId !== that.playerId ||
+            that.simulation.movePlayer(message.playerId, message.position)
+          ) {
+            that.emit('movePlayer', message);
+          }
         } else if(message.type == 'controlPlayer') {
           that.playerId = message.playerId;
-          that.simulation.playerPositions[message.playerId] = { x: 0, y:0, rotation: 0 };
+          that.simulation.initPlayer(message.playerId);
         } else {
           that.emit("receiveMessage", message, connectionName);
         }

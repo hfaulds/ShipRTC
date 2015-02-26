@@ -33,4 +33,20 @@ Simulation.prototype.tick = function() {
   });
 };
 
+Simulation.prototype.movePlayer = function(playerId, position) {
+  var currentPos = this.playerPositions[playerId];
+  var makeMovement = ( Math.abs(currentPos.x - position.x) +
+                      Math.abs(currentPos.y - position.y) ) > 200;
+
+  if(makeMovement) {
+    this.playerPositions[playerId] = position;
+  }
+
+  return makeMovement;
+};
+
+Simulation.prototype.initPlayer = function(playerId) {
+  this.playerPositions[playerId] = { x: 0, y:0, rotation: 0 };
+};
+
 module.exports = Simulation;
