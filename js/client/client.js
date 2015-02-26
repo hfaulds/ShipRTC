@@ -43,7 +43,7 @@ module.exports = Machina.Fsm.extend({
       });
       that.connection.on("receiveMessage", function(message) {
         if(message.type == 'newPlayer') {
-          that.emit("newPlayer", message.playerId);
+          that.emit("newPlayer", message);
         } else if(message.type == 'movePlayer') {
           if(
             message.playerId !== that.playerId ||

@@ -13,12 +13,12 @@ PlayerStore.prototype.onMovePlayer = function(movement) {
   player.rotation = movement.position.rotation;
 };
 
-PlayerStore.prototype.onNewPlayer = function(playerId) {
-  this.players[playerId] = {
+PlayerStore.prototype.onNewPlayer = function(player) {
+  this.players[player.playerId] = {
     sprite: "images/PlayerShips/playerShip2_red.png",
-    x: 0,
-    y: 0,
-    rotation: 0
+    x: player.position.x,
+    y: player.position.y,
+    rotation: player.position.rotation
   };
 };
 

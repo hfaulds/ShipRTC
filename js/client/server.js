@@ -40,17 +40,24 @@ module.exports = Machina.Fsm.extend({
     lobbyServer.on('serverRegistered', function(lobbyId) {
       that.emit("registered", lobbyId);
       that.transition("registered");
-      that.emit("newPlayer", 'server');
+      that.emit("newPlayer", {
+        playerId: 'server',
+        position: that.simulation.playerPositions.server
+      });
     });
 
     connectionPool.on('connected', function(playerId) {
       that.simulation.initPlayer(playerId);
-      that.emit("newPlayer", playerId);
+      that.emit("newPlayer", {
+        playerId: playerId,
+        position: that.simulation.playerPositions[playerId]
+      });
 
       _.each(that.simulation.playerPositions, function(position, id) {
         connectionPool.sendTo(playerId, {
           type: 'newPlayer',
-          playerId: id
+          playerId: id,
+          position: position,
         });
       });
 
