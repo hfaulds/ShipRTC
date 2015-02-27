@@ -1,25 +1,9 @@
 var Bluebird = require("bluebird");
 
 var SERVERS =  [
-  {url:'stun:stun01.sipphone.com'},
-  {url:'stun:stun.ekiga.net'},
-  {url:'stun:stun.fwdnet.net'},
-  {url:'stun:stun.ideasip.com'},
-  {url:'stun:stun.iptel.org'},
-  {url:'stun:stun.rixtelecom.se'},
-  {url:'stun:stun.schlund.de'},
-  {url:'stun:stun.l.google.com:19302'},
-  {url:'stun:stun1.l.google.com:19302'},
-  {url:'stun:stun2.l.google.com:19302'},
-  {url:'stun:stun3.l.google.com:19302'},
-  {url:'stun:stun4.l.google.com:19302'},
-  {url:'stun:stunserver.org'},
-  {url:'stun:stun.softjoys.com'},
-  {url:'stun:stun.voiparound.com'},
-  {url:'stun:stun.voipbuster.com'},
-  {url:'stun:stun.voipstunt.com'},
-  {url:'stun:stun.voxgratia.org'},
-  {url:'stun:stun.xten.com'},
+  {url: "stun:stun.turnservers.com:3478"},
+  {url: "turn:85.25.243.74:3478?transport=udp", "username": "EeangVrudNzW", "credential": "5a32994dbdc81331d414664bdeb1345e" },
+  {url: "turn:85.25.243.74:3478?transport=tcp", "username": "EeangVrudNzW", "credential": "5a32994dbdc81331d414664bdeb1345e" }
 ];
 
 var CONFIG = {iceServers: SERVERS};
