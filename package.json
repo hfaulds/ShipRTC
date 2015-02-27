@@ -17,10 +17,11 @@
     "react": "0.12.2",
     "reactify": "1.0.0",
     "node-jsx": "0.12.4",
-    "alt": "0.12.3"
+    "alt": "0.12.3",
+
+    "browserify": "latest"
   },
   "devDependencies": {
-    "browserify": "latest",
     "watchify": "latest"
   },
   "scripts": {
