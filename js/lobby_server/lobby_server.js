@@ -25,7 +25,7 @@ LobbyServer.prototype.listen = function(port) {
   that.app.get('/', function (req, res) {
     res.send(
       React.renderToString(App({
-        lobbyServerUrl: "http://localhost:9999",
+        lobbyServerUrl: "http://localhost:" + (process.env.PORT || 9999),
         lobbies: _.keys(that.lobbies),
       }))
     );
