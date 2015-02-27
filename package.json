@@ -25,7 +25,6 @@
     "watchify": "latest"
   },
   "scripts": {
-    "start": "node js/lobby_server_main.js",
     "postinstall": "mkdir public/js && browserify -t reactify js/client_main.js > public/js/bundle.js",
     "watch-js": "watchify --debug -t reactify js/client_main.js -o public/js/bundle.js"
   }
