@@ -24,7 +24,7 @@
     "watchify": "latest"
   },
   "scripts": {
-    "run-server": "node js/lobby_server_main.js",
+    "start": "npm run build-js && node js/lobby_server_main.js",
     "build-js": "browserify -t reactify js/client_main.js -o public/js/bundle.js",
     "watch-js": "watchify --debug -t reactify js/client_main.js -o public/js/bundle.js"
   }
