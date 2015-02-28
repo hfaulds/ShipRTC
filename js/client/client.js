@@ -35,8 +35,8 @@ module.exports = Machina.Fsm.extend({
         that.transition("connected");
         that.emit("connected");
       });
-      that.connection.on("close", function(e) {
-        that.emit("close");
+      that.connection.on("disconnected", function(e) {
+        that.emit("disconnected");
       });
       that.connection.on("error", function(e) {
         that.emit("error");
@@ -51,6 +51,9 @@ module.exports = Machina.Fsm.extend({
           ) {
             that.emit('movePlayer', message);
           }
+        } else if(message.type == 'removePlayer') {
+          that.simulation.removePlayer(message.playerId);
+          that.emit('removePlayer', message.playerId);
         } else if(message.type == 'controlPlayer') {
           that.playerId = message.playerId;
           that.simulation.initPlayer(message.playerId);

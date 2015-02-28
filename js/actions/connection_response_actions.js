@@ -2,7 +2,7 @@ var alt = require('../alt');
 var LobbyActions = require('../actions/lobby_actions');
 
 function ConnectionResponseActions() {
-  this.generateActions('connected', 'receiveMessage', 'newPlayer', 'movePlayer');
+  this.generateActions('connected', 'receiveMessage', 'newPlayer',  'removePlayer', 'movePlayer');
 }
 
 ConnectionResponseActions.prototype.disconnected = function() {

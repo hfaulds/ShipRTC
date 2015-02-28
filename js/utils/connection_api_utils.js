@@ -26,7 +26,7 @@ ConnectionApiUtils.joinLobby = function(lobbyId) {
 };
 
 ConnectionApiUtils.addConnectionHandlers = function(connection) {
-  connection.on("close", function(e) {
+  connection.on("disconnected", function(e) {
     ConnectionResponseActions.disconnected(e);
     ConnectionApiUtils.removeConnection(connection);
   });
@@ -34,8 +34,11 @@ ConnectionApiUtils.addConnectionHandlers = function(connection) {
     ConnectionResponseActions.disconnected(e);
     ConnectionApiUtils.removeConnection(connection);
   });
-  connection.on("newPlayer", function(id) {
-    ConnectionResponseActions.newPlayer(id);
+  connection.on("newPlayer", function(message) {
+    ConnectionResponseActions.newPlayer(message);
+  });
+  connection.on("removePlayer", function(id) {
+    ConnectionResponseActions.removePlayer(id);
   });
   connection.on("movePlayer", function(movement) {
     ConnectionResponseActions.movePlayer(movement);

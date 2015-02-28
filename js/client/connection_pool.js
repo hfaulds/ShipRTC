@@ -38,6 +38,14 @@ ConnectionPool.prototype.createConnection = function(negotiatorId) {
     that.events.emit("connected", connectionId);
   });
 
+  connection.on("disconnected", function() {
+    that.events.emit("disconnected", connectionId);
+  });
+
+  connection.on("error", function() {
+    that.events.emit("disconnected", connectionId);
+  });
+
   connection.on("receiveMessage", function(message) {
     that.events.emit("receiveMessage", connectionId, message);
   });

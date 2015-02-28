@@ -18,9 +18,11 @@ module.exports = Machina.Fsm.extend({
       this.emit("connected");
     }.bind(this);
     this.channel.onclose = function(e) {
-      this.emit("close");
+      this.handle("disconnect");
+      this.emit("disconnected");
     }.bind(this);
     this.channel.onerror = function(e) {
+      this.handle("disconnect");
       this.emit("error");
     }.bind(this);
     this.channel.onmessage = function(e) {
@@ -107,18 +109,14 @@ module.exports = Machina.Fsm.extend({
 
     "connected" : {
       "sendMessage" : function(data) {
-        var that = this;
-        setTimeout(function() {
-          that.channel.send(JSON.stringify(data));
-        }, 100);
+        this.channel.send(JSON.stringify(data));
       },
       "receiveMessage" : function(data) {
         this.emit("receiveMessage", JSON.parse(data));
       },
       "disconnect" : function() {
         this.channel.close();
-        this.localConnection.close();
-        this.localConnection = null;
+        this.transition("disconnected");
       }
     }
   }

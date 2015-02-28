@@ -60,4 +60,9 @@ Simulation.prototype.initPlayer = function(playerId) {
   this.playerPositions[playerId] = { x: 0, y:0, rotation: 0 };
 };
 
+Simulation.prototype.removePlayer = function(playerId) {
+  delete this.playerInputs[playerId];
+  delete this.playerPositions[playerId];
+};
+
 module.exports = Simulation;

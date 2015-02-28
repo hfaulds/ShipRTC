@@ -73,6 +73,15 @@ module.exports = Machina.Fsm.extend({
       });
     });
 
+    connectionPool.on('disconnected', function(playerId) {
+      connectionPool.sendAll({
+        type: 'removePlayer',
+        playerId: playerId,
+      });
+      that.emit('removePlayer', playerId);
+      that.simulation.removePlayer(playerId);
+    });
+
     connectionPool.on('receiveMessage', function(connectionId, message) {
       if(message.type == "playerInput") {
         that.simulation.playerInputs[connectionId] = message.input;

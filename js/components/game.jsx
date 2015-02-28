@@ -38,6 +38,12 @@ module.exports = React.createClass({
       this.gameContainer.addChild(ship);
     }.bind(this));
 
+    var removedPlayerIds = _.difference(_.keys(this.ships), _.keys(players));
+    _.each(removedPlayerIds, function(id) {
+      this.gameContainer.removeChild(this.ships[id]);
+      delete this.ships[id];
+    }.bind(this));
+
     _.each(players, function(player, id) {
       var ship = this.ships[id];
       ship.position.x = (this.renderer.width) / 2 - player.x;

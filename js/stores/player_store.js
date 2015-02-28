@@ -22,4 +22,8 @@ PlayerStore.prototype.onNewPlayer = function(player) {
   };
 };
 
+PlayerStore.prototype.onRemovePlayer = function(playerId) {
+  delete this.players[playerId];
+};
+
 module.exports = alt.createStore(PlayerStore);
