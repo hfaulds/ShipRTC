@@ -44,14 +44,16 @@ Simulation.prototype.tick = function() {
 
 Simulation.prototype.movePlayer = function(playerId, position) {
   var currentPos = this.playerPositions[playerId];
-  var makeMovement = ( Math.abs(currentPos.x - position.x) +
-                      Math.abs(currentPos.y - position.y) ) > 200;
+  var substantialMovement = ( Math.abs(currentPos.x - position.x) +
+                             Math.abs(currentPos.y - position.y) ) > 200;
+  var substantialRotation = Math.abs(currentPos.rotation - position.rotation) > (Math.PI / 20);
 
-  if(makeMovement) {
+  if(substantialMovement || substantialRotation) {
     this.playerPositions[playerId] = position;
+    return true;
+  } else {
+    return false;
   }
-
-  return makeMovement;
 };
 
 Simulation.prototype.initPlayer = function(playerId) {
