@@ -47,18 +47,24 @@ module.exports = Machina.Fsm.extend({
     });
 
     connectionPool.on('connected', function(playerId) {
-      that.simulation.initPlayer(playerId);
-      that.emit("newPlayer", {
-        playerId: playerId,
-        position: that.simulation.playerPositions[playerId]
-      });
-
       _.each(that.simulation.playerPositions, function(position, id) {
         connectionPool.sendTo(playerId, {
           type: 'newPlayer',
           playerId: id,
           position: position,
         });
+      });
+
+      that.simulation.initPlayer(playerId);
+      that.emit("newPlayer", {
+        playerId: playerId,
+        position: that.simulation.playerPositions[playerId]
+      });
+
+      that.connectionPool.sendAll({
+        type: 'newPlayer',
+        playerId: playerId,
+        position: that.simulation.playerPositions[playerId],
       });
 
       connectionPool.sendTo(playerId, {
