@@ -37,6 +37,64 @@ module.exports = Machina.Fsm.extend({
     var connectionPool = new ConnectionPool(lobbyServer);
 
     var that = this;
+    lobbyServer.on('createOffer', connectionPool.createOffer);
+    lobbyServer.on('receiveOffer', connectionPool.receiveOffer);
+    lobbyServer.on('acceptAnswer', connectionPool.acceptAnswer);
+    lobbyServer.on('addIceCandidate', connectionPool.addIceCandidate);
+    lobbyServer.on('createConnection', function(negotiatorId) {
+      var connection = connectionPool.createConnection(negotiatorId, this);
+      connection.on('startNegotiation', this.emit);
+      connection.on('shareOffer', this.emit);
+      connection.on('shareAnswer', this.emit);
+      connection.on('acceptAnswer', this.emit);
+      connection.on('shareIceCandidate', this.emit);
+
+      connection.on('connected', function(playerId) {
+        _.each(that.simulation.playerPositions, function(position, id) {
+          connectionPool.sendTo(playerId, {
+            type: 'newPlayer',
+            playerId: id,
+            position: position,
+          });
+        });
+
+        that.simulation.initPlayer(playerId);
+        that.emit("newPlayer", {
+          playerId: playerId,
+          position: that.simulation.playerPositions[playerId]
+        });
+
+        that.connectionPool.sendAll({
+          type: 'newPlayer',
+          playerId: playerId,
+          position: that.simulation.playerPositions[playerId],
+        });
+
+        connectionPool.sendTo(playerId, {
+          type: 'controlPlayer',
+          playerId: playerId
+        });
+      });
+
+      connection.on('disconnected', function(playerId) {
+        connectionPool.sendAll({
+          type: 'removePlayer',
+          playerId: playerId,
+        });
+        that.emit('removePlayer', playerId);
+        that.simulation.removePlayer(playerId);
+      });
+
+      connection.on('receiveMessage', function(connectionId, message) {
+        if(message.type == "playerInput") {
+          that.simulation.playerInputs[connectionId] = message.input;
+        } else {
+          that.emit("receiveMessage", message, connectionId);
+          connectionPool.sendAllExcept(connectionId, message);
+        }
+      });
+    });
+
     lobbyServer.on('serverRegistered', function(lobbyId) {
       that.emit("registered", lobbyId);
       that.transition("registered");
@@ -44,51 +102,6 @@ module.exports = Machina.Fsm.extend({
         playerId: 'server',
         position: that.simulation.playerPositions.server
       });
-    });
-
-    connectionPool.on('connected', function(playerId) {
-      _.each(that.simulation.playerPositions, function(position, id) {
-        connectionPool.sendTo(playerId, {
-          type: 'newPlayer',
-          playerId: id,
-          position: position,
-        });
-      });
-
-      that.simulation.initPlayer(playerId);
-      that.emit("newPlayer", {
-        playerId: playerId,
-        position: that.simulation.playerPositions[playerId]
-      });
-
-      that.connectionPool.sendAll({
-        type: 'newPlayer',
-        playerId: playerId,
-        position: that.simulation.playerPositions[playerId],
-      });
-
-      connectionPool.sendTo(playerId, {
-        type: 'controlPlayer',
-        playerId: playerId
-      });
-    });
-
-    connectionPool.on('disconnected', function(playerId) {
-      connectionPool.sendAll({
-        type: 'removePlayer',
-        playerId: playerId,
-      });
-      that.emit('removePlayer', playerId);
-      that.simulation.removePlayer(playerId);
-    });
-
-    connectionPool.on('receiveMessage', function(connectionId, message) {
-      if(message.type == "playerInput") {
-        that.simulation.playerInputs[connectionId] = message.input;
-      } else {
-        that.emit("receiveMessage", message, connectionId);
-        connectionPool.sendAllExcept(connectionId, message);
-      }
     });
 
     this.lobbyServer = lobbyServer;

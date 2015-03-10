@@ -1,57 +1,17 @@
 var Connection = require("./connection");
-var Events = require("minivents");
 var _ = require('lodash');
 
-function ConnectionPool(lobbyServer) {
-  this.connections = {};
-  this.events = new Events();
-
-  var that = this;
-  lobbyServer.on('createConnection', function(negotiatorId) {
-    that.createConnection(negotiatorId);
-  });
-
-  lobbyServer.on('createOffer', function(id) {
-    that.connections[id].handle("createOffer");
-  });
-
-  lobbyServer.on('receiveOffer', function(id, offer) {
-    that.connections[id].handle("receiveOffer", offer);
-  });
-
-  lobbyServer.on('acceptAnswer', function(id, answer) {
-    that.connections[id].handle("acceptAnswer", answer);
-  });
-
-  lobbyServer.on('addIceCandidate', function(id, candidate) {
-    that.connections[id].handle("addIceCandidate", candidate);
-  });
-  this.lobbyServer = lobbyServer;
+function ConnectionPool(connections) {
+  this.connections = connections || {};
 }
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
   var connectionId = 'c' + _.keys(this.connections).length;
-  var connection = new Connection(undefined, connectionId, negotiatorId, this.lobbyServer);
-  var that = this;
-
-  connection.on("connected", function() {
-    that.events.emit("connected", connectionId);
-  });
-
-  connection.on("disconnected", function() {
-    that.events.emit("disconnected", connectionId);
-  });
-
-  connection.on("error", function() {
-    that.events.emit("disconnected", connectionId);
-  });
-
-  connection.on("receiveMessage", function(message) {
-    that.events.emit("receiveMessage", connectionId, message);
-  });
+  var connection = new Connection(undefined, connectionId, negotiatorId);
 
   connection.handle("connect");
-  that.connections[connectionId] = connection;
+  this.connections[connectionId] = connection;
+  return connection;
 };
 
 ConnectionPool.prototype.sendAll = function(data) {
@@ -74,8 +34,20 @@ ConnectionPool.prototype.sendAllExcept = function(connectionId, data) {
   });
 };
 
-ConnectionPool.prototype.on = function(event, callback) {
-  this.events.on(event, callback);
+ConnectionPool.prototype.createOffer = function(id) {
+  this.connections[id].handle("createOffer");
+};
+
+ConnectionPool.prototype.receiveOffer = function(id, offer) {
+  this.connections[id].handle("receiveOffer", offer);
+};
+
+ConnectionPool.prototype.acceptAnswer = function(id, answer) {
+  this.connections[id].handle("acceptAnswer", answer);
+};
+
+ConnectionPool.prototype.addIceCandidate = function(id, candidate) {
+  this.connections[id].handle("addIceCandidate", candidate);
 };
 
 module.exports = ConnectionPool;

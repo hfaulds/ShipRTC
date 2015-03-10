@@ -5,10 +5,9 @@ var RTCPeerPromise = require("./rtc_peer_promise");
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
-  initialize : function (_, id, negotiatorId, negotiator) {
+  initialize : function (_, id, negotiatorId) {
     this.id = id;
     this.negotiatorId = negotiatorId;
-    this.negotiator = negotiator;
   },
 
   setupChannel : function(channel) {
@@ -42,10 +41,10 @@ module.exports = Machina.Fsm.extend({
         this.connection = new RTCPeerPromise();
         this.connection.onIceCandidate(function(e) {
           if (e.candidate) {
-            that.negotiator.emit("shareIceCandidate", that.negotiatorId, e.candidate);
+            that.emit("shareIceCandidate", that.negotiatorId, e.candidate);
           }
         });
-        this.negotiator.emit("startNegotiation", this.negotiatorId, this.id);
+        this.emit("startNegotiation", this.negotiatorId, this.id);
         return this.id;
       },
       "createOffer" : function() {
@@ -56,7 +55,7 @@ module.exports = Machina.Fsm.extend({
         that.connection.createOffer().then(function(offer) {
           return that.connection.setLocalDescription(offer);
         }).then(function() {
-          that.negotiator.emit("shareOffer", that.negotiatorId, that.connection.getLocalDescription());
+          that.emit("shareOffer", that.negotiatorId, that.connection.getLocalDescription());
         }).catch(function(e) {
           that.error(e);
         });
@@ -74,7 +73,7 @@ module.exports = Machina.Fsm.extend({
           }).then(function(answerDesc) {
             return that.connection.setLocalDescription(answerDesc);
           }).then(function() {
-            that.negotiator.emit("shareAnswer", that.negotiatorId, that.connection.getLocalDescription());
+            that.emit("shareAnswer", that.negotiatorId, that.connection.getLocalDescription());
             that.transition("remoteDescriptionSet");
           }).catch(function(e) {
             that.error(e);
@@ -84,7 +83,7 @@ module.exports = Machina.Fsm.extend({
         var that = this;
         this.connection.setRemoteDescription(new RTCSessionDescription(desc)).
           then(function() {
-            that.negotiator.emit("acceptAnswer", that.negotiatorId);
+            that.emit("acceptAnswer", that.negotiatorId);
             that.transition("remoteDescriptionSet");
           }).catch(function(e) {
             that.error(e);

@@ -5,27 +5,28 @@
     "express": "4.12.2",
     "socket.io": "1.3.5",
     "socket.io-client": "1.3.5",
-
     "minivents": "1.1.7",
-    "lodash": "3.3.1",
-    "machina" : "1.0.0-1",
+    "lodash": "3.4.0",
+    "machina": "1.0.0-2",
     "bluebird": "2.9.13",
     "request": "2.53.0",
-
     "pixi.js": "2.2.7",
-
     "react": "0.12.2",
     "reactify": "1.0.0",
     "node-jsx": "0.12.4",
-    "alt": "0.13.10",
-
+    "alt": "0.14.2",
     "browserify": "latest"
   },
   "devDependencies": {
+    "jasmine-core": "^2.2.0",
+    "karma": "~0.12.31",
+    "karma-jasmine": "^0.3.5",
+    "karma-chrome-launcher": "~0.1",
+    "karma-browserify": "4.0.0",
     "watchify": "latest"
   },
   "scripts": {
-    "postinstall": "mkdir public/js && browserify -t reactify js/client_main.js > public/js/bundle.js",
+    "postinstall": "browserify -t reactify js/client_main.js > public/js/bundle.js",
     "watch-js": "watchify --debug -t reactify js/client_main.js -o public/js/bundle.js"
   }
 }
