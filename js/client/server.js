@@ -32,22 +32,30 @@ module.exports = Machina.Fsm.extend({
     });
   },
 
-  initialize : function(lobbyServerUrl) {
-    var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
-    var connectionPool = new ConnectionPool(lobbyServer);
+  setupConnectionPoolSignalHandlers: function(connectionPool, lobbyServer) {
+    _.each(['createOffer', 'receiveOffer', 'acceptAnswer', 'addIceCandidate'], function(event) {
+      lobbyServer.on(event, connectionPool[event]);
+    });
+  },
+
+  setupConnectionSignalHandlers: function(connection, lobbyServer) {
+    _.each(['startNegotiation', 'shareOffer', 'shareAnswer', 'acceptAnswer', 'shareIceCandidate'], function(event) {
+      connection.on(event, function() {
+        var args = _.union([event], arguments);
+        lobbyServer.emit.apply(lobbyServer, args);
+      });
+    });
+  },
+
+  initialize : function(lobbyServer, connectionPool) {
+    connectionPool = connectionPool || new ConnectionPool();
+
+    this.setupConnectionPoolSignalHandlers(connectionPool, lobbyServer);
 
     var that = this;
-    lobbyServer.on('createOffer', connectionPool.createOffer);
-    lobbyServer.on('receiveOffer', connectionPool.receiveOffer);
-    lobbyServer.on('acceptAnswer', connectionPool.acceptAnswer);
-    lobbyServer.on('addIceCandidate', connectionPool.addIceCandidate);
     lobbyServer.on('createConnection', function(negotiatorId) {
       var connection = connectionPool.createConnection(negotiatorId, this);
-      connection.on('startNegotiation', this.emit);
-      connection.on('shareOffer', this.emit);
-      connection.on('shareAnswer', this.emit);
-      connection.on('acceptAnswer', this.emit);
-      connection.on('shareIceCandidate', this.emit);
+      that.setupConnectionSignalHandlers(connection, lobbyServer);
 
       connection.on('connected', function(playerId) {
         _.each(that.simulation.playerPositions, function(position, id) {

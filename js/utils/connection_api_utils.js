@@ -6,7 +6,8 @@ function ConnectionApiUtils() {
 }
 
 ConnectionApiUtils.createLobby = function() {
-  var server = new Server(window.location.origin);
+  var lobbyServer = io(window.location.origin, {'force new connection': true});
+  var server = new Server(lobbyServer);
   server.on("registered", function(lobbyId) {
     ConnectionResponseActions.connected(server);
   });
