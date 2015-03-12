@@ -1,5 +1,4 @@
 var _ = require('lodash');
-var io = require('socket.io-client');
 var Machina = require('machina');
 if(global.document) var PIXI = require('pixi.js');
 

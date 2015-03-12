@@ -13,7 +13,8 @@ function ConnectionPool(connections, negotiator) {
     negotiator.on(event, function() {
       var id = _.first(arguments);
       var args = _.union([event], _.slice(arguments, 1));
-      that.connections[id].handle.apply(undefined, args);
+      var connection = that.connections[id];
+      connection.handle.apply(connection, args);
     });
   });
 }

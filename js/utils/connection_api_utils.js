@@ -1,4 +1,5 @@
 var ConnectionResponseActions = require('../actions/connection_response_actions');
+var io = require('socket.io-client');
 var Client = require("../client/client");
 var Server = require("../client/server");
 
