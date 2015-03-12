@@ -10,28 +10,13 @@ describe("Server", function() {
     fakeLobbyServer = new EventEmitter();
   });
 
-  describe("communication with connections", function() {
-    var events = ['createOffer', 'receiveOffer', 'acceptAnswer', 'addIceCandidate'];
-    var fakeConnectionPool = jasmine.createSpyObj('connectionPool', events);
-
-    _.each(events, function(event) {
-      it("delegates " + event + " to connectionPool", function() {
-        var server = new Server(fakeLobbyServer, fakeConnectionPool);
-
-        fakeLobbyServer.emit(event);
-
-        expect(fakeConnectionPool[event]).toHaveBeenCalled();
-      });
-    });
-  });
-
   describe("connection lifecycle", function() {
     var fakeConnection;
     var connectionPool;
 
     beforeEach(function() {
       fakeConnection = new EventEmitter();
-      connectionPool = new ConnectionPool({ 'c0': fakeConnection });
+      connectionPool = new ConnectionPool({ 'c0': fakeConnection }, fakeLobbyServer);
       spyOn(connectionPool, 'createConnection').and.returnValue(fakeConnection);
     });
 

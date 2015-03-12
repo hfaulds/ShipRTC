@@ -1,8 +1,18 @@
 var Connection = require("./connection");
 var _ = require('lodash');
 
-function ConnectionPool(connections) {
+function ConnectionPool(connections, negotiator) {
   this.connections = connections || {};
+  var that = this;
+  _.each([
+    'createOffer', 'receiveOffer', 'acceptAnswer', 'addIceCandidate'
+  ], function(event) {
+    negotiator.on(event, function() {
+      var id = _.first(arguments);
+      var args = _.union([event], _.slice(arguments, 1));
+      that.connections[id].handle.apply(undefined, args);
+    });
+  });
 }
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
@@ -35,7 +45,8 @@ ConnectionPool.prototype.sendAllExcept = function(connectionId, data) {
 };
 
 ConnectionPool.prototype.createOffer = function(id) {
-  this.connections[id].handle("createOffer");
+  console.log(id);
+  console.log(this.connections);
 };
 
 ConnectionPool.prototype.receiveOffer = function(id, offer) {

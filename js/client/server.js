@@ -32,12 +32,6 @@ module.exports = Machina.Fsm.extend({
     });
   },
 
-  setupConnectionPoolSignalHandlers: function(connectionPool, lobbyServer) {
-    _.each(['createOffer', 'receiveOffer', 'acceptAnswer', 'addIceCandidate'], function(event) {
-      lobbyServer.on(event, connectionPool[event]);
-    });
-  },
-
   setupConnectionSignalHandlers: function(connection, lobbyServer) {
     _.each(['startNegotiation', 'shareOffer', 'shareAnswer', 'acceptAnswer', 'shareIceCandidate'], function(event) {
       connection.on(event, function() {
@@ -48,9 +42,7 @@ module.exports = Machina.Fsm.extend({
   },
 
   initialize : function(lobbyServer, connectionPool) {
-    connectionPool = connectionPool || new ConnectionPool();
-
-    this.setupConnectionPoolSignalHandlers(connectionPool, lobbyServer);
+    connectionPool = connectionPool || new ConnectionPool({}, lobbyServer);
 
     var that = this;
     lobbyServer.on('createConnection', function(negotiatorId) {

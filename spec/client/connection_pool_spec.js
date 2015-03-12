@@ -1,16 +1,34 @@
 var _ = require("lodash");
 var ConnectionPool = require("../../js/client/connection_pool");
 var Connection = require("../../js/client/connection");
+var EventEmitter = require('events').EventEmitter;
 
 describe("ConnectionPool", function() {
-  var connectionPool;
+  var fakeNegotiator;
 
   beforeEach(function() {
-    connectionPool =  new ConnectionPool();
+    fakeNegotiator = new EventEmitter();
+  });
+
+  describe("connection signalling", function() {
+    var events = ['createOffer', 'receiveOffer', 'acceptAnswer', 'addIceCandidate'];
+
+    _.each(events, function(event) {
+      it("delegates " + event + " to correct connection", function() {
+        var connection = new Connection();
+        spyOn(connection, 'handle');
+
+        var connectionPool = new ConnectionPool({ 'a': connection }, fakeNegotiator);
+        fakeNegotiator.emit(event, 'a', 'arg');
+        expect(connection.handle).toHaveBeenCalledWith(event, 'arg');
+      });
+    });
   });
 
   describe("#createConnection", function() {
     it("creates a connection", function() {
+      var connectionPool = new ConnectionPool({}, fakeNegotiator);
+
       var negotiatorId = 0;
       connectionPool.createConnection(negotiatorId);
 
@@ -18,6 +36,8 @@ describe("ConnectionPool", function() {
     });
 
     it("returns the connection", function() {
+      var connectionPool = new ConnectionPool({}, fakeNegotiator);
+
       var negotiatorId = 0;
       expect(
         connectionPool.createConnection(negotiatorId)
@@ -32,7 +52,7 @@ describe("ConnectionPool", function() {
       var connection = new Connection();
       spyOn(connection, 'handle');
 
-      var connectionPool = new ConnectionPool({ 'a': connection });
+      var connectionPool = new ConnectionPool({ 'a': connection }, fakeNegotiator);
       connectionPool.sendTo('a', 'foo');
 
       expect(connection.handle).toHaveBeenCalledWith('sendMessage', 'foo');
@@ -47,7 +67,7 @@ describe("ConnectionPool", function() {
         return connection;
       });
 
-      var connectionPool = new ConnectionPool(_.extend({}, connections));
+      var connectionPool = new ConnectionPool(_.extend({}, connections), fakeNegotiator);
       connectionPool.sendAll('foo');
 
       _.each(connections, function(connection) {
@@ -67,7 +87,7 @@ describe("ConnectionPool", function() {
       spyOn(connectionToNotSentTo, 'handle');
       var connections = connectionsToSendTo.concat(connectionToNotSentTo);
 
-      var connectionPool = new ConnectionPool(_.extend({}, connections));
+      var connectionPool = new ConnectionPool(_.extend({}, connections), fakeNegotiator);
       connectionPool.sendAllExcept('10', 'foo');
 
       _.each(connectionsToSendTo, function(connection) {
@@ -75,50 +95,6 @@ describe("ConnectionPool", function() {
       });
 
       expect(connectionToNotSentTo.handle.calls.any()).toEqual(false);
-    });
-  });
-
-  describe("#createOffer", function() {
-    it("tells the appropriate connection to create an offer", function() {
-      var connection = new Connection();
-      spyOn(connection, 'handle');
-
-      var connectionPool = new ConnectionPool({ 'a': connection });
-      connectionPool.createOffer('a');
-      expect(connection.handle).toHaveBeenCalledWith('createOffer');
-    });
-  });
-
-  describe("#receiveOffer", function() {
-    it("passes the offer on to the appropriate connection", function() {
-      var connection = new Connection();
-      spyOn(connection, 'handle');
-
-      var connectionPool = new ConnectionPool({ 'a': connection });
-      connectionPool.receiveOffer('a', 'offer');
-      expect(connection.handle).toHaveBeenCalledWith('receiveOffer', 'offer');
-    });
-  });
-
-  describe("#acceptAnswer", function() {
-    it("passes the answer on to the appropriate connection", function() {
-      var connection = new Connection();
-      spyOn(connection, 'handle');
-
-      var connectionPool = new ConnectionPool({ 'a': connection });
-      connectionPool.acceptAnswer('a', 'offer');
-      expect(connection.handle).toHaveBeenCalledWith('acceptAnswer', 'offer');
-    });
-  });
-
-  describe("#addIceCandidate", function() {
-    it("passes the candidate on to the appropriate connection", function() {
-      var connection = new Connection();
-      spyOn(connection, 'handle');
-
-      var connectionPool = new ConnectionPool({ 'a': connection });
-      connectionPool.addIceCandidate('a', 'candidate');
-      expect(connection.handle).toHaveBeenCalledWith('addIceCandidate', 'candidate');
     });
   });
 });
