@@ -1,28 +1,31 @@
 var _ = require("lodash");
 var Connection = require("../../js/client/connection");
+var EventEmitter = require('events').EventEmitter;
 
-describe("ConnectionPool", function() {
+describe("Connection", function() {
   describe("End to end connections", function() {
     var con1;
     var con2;
 
     beforeEach(function(done) {
-      con1 =  new Connection();
-      con2 =  new Connection();
+      var negotiator1 = new EventEmitter();
+      con1 = new Connection(negotiator1);
+      var negotiator2 = new EventEmitter();
+      con2 = new Connection(negotiator2);
 
-      con1.on("shareIceCandidate", function(id, candidate) {
+      negotiator1.on("shareIceCandidate", function(id, candidate) {
         con2.handle("addIceCandidate", candidate);
       });
 
-      con2.on("shareIceCandidate", function(id, candidate) {
+      negotiator2.on("shareIceCandidate", function(id, candidate) {
         con1.handle("addIceCandidate", candidate);
       });
 
-      con2.on("shareAnswer", function(id, answer) {
+      negotiator2.on("shareAnswer", function(id, answer) {
         con1.handle("acceptAnswer", answer);
       });
 
-      con1.on("shareOffer", function(id, offer) {
+      negotiator1.on("shareOffer", function(id, offer) {
         con2.handle("receiveOffer", offer);
       });
 

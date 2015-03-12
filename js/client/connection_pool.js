@@ -2,7 +2,9 @@ var Connection = require("./connection");
 var _ = require('lodash');
 
 function ConnectionPool(connections, negotiator) {
-  this.connections = connections || {};
+  this.connections = connections;
+  this.negotiator = negotiator;
+
   var that = this;
   _.each([
     'createOffer', 'receiveOffer', 'acceptAnswer', 'addIceCandidate'
@@ -17,7 +19,7 @@ function ConnectionPool(connections, negotiator) {
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
   var connectionId = 'c' + _.keys(this.connections).length;
-  var connection = new Connection(undefined, connectionId, negotiatorId);
+  var connection = new Connection(this.negotiator, connectionId, negotiatorId);
 
   connection.handle("connect");
   this.connections[connectionId] = connection;

@@ -15,7 +15,7 @@ describe("ConnectionPool", function() {
 
     _.each(events, function(event) {
       it("delegates " + event + " to correct connection", function() {
-        var connection = new Connection();
+        var connection = new Connection(fakeNegotiator);
         spyOn(connection, 'handle');
 
         var connectionPool = new ConnectionPool({ 'a': connection }, fakeNegotiator);
@@ -49,7 +49,7 @@ describe("ConnectionPool", function() {
 
   describe("#sendTo", function() {
     it("calls send on a connection", function() {
-      var connection = new Connection();
+      var connection = new Connection(fakeNegotiator);
       spyOn(connection, 'handle');
 
       var connectionPool = new ConnectionPool({ 'a': connection }, fakeNegotiator);
@@ -79,11 +79,11 @@ describe("ConnectionPool", function() {
   describe("#sendAllExcept", function() {
     it("sends to all connections except", function() {
       var connectionsToSendTo = _.times(10, function(id) {
-        var connection = new Connection(undefined, id);
+        var connection = new Connection(fakeNegotiator, id);
         spyOn(connection, 'handle');
         return connection;
       });
-      var connectionToNotSentTo = new Connection(undefined, '10');
+      var connectionToNotSentTo = new Connection(fakeNegotiator, '10');
       spyOn(connectionToNotSentTo, 'handle');
       var connections = connectionsToSendTo.concat(connectionToNotSentTo);
 

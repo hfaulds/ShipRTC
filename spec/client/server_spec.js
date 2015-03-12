@@ -10,6 +10,22 @@ describe("Server", function() {
     fakeLobbyServer = new EventEmitter();
   });
 
+  describe("upon registering with the lobbyServer", function() {
+    it("", function() {
+    });
+  });
+
+  describe("after registering with the lobbyServer", function() {
+    it("begins the simulation loop", function() {
+    });
+
+    it("handles player messages", function() {
+    });
+
+    it("handles player input", function() {
+    });
+  });
+
   describe("connection lifecycle", function() {
     var fakeConnection;
     var connectionPool;
@@ -20,8 +36,8 @@ describe("Server", function() {
       spyOn(connectionPool, 'createConnection').and.returnValue(fakeConnection);
     });
 
-    describe("on creation", function() {
-      it("sends current player Positions", function() {
+    describe("on connected", function() {
+      it("tells the new player about the existing players", function() {
         spyOn(connectionPool, 'sendTo');
 
         var server = new Server(fakeLobbyServer, connectionPool);
@@ -35,33 +51,29 @@ describe("Server", function() {
         });
       });
 
-      _.each(['startNegotiation', 'shareOffer', 'shareAnswer', 'acceptAnswer', 'shareIceCandidate'], function(event) {
-        it("handles " + event + " from connection to lobbyServer", function() {
-          var server = new Server(fakeLobbyServer, connectionPool);
-          fakeLobbyServer.emit('createConnection', 1);
-          spyOn(fakeLobbyServer, 'emit');
-          fakeConnection.emit(event, 'arg');
-
-          expect(fakeLobbyServer.emit).toHaveBeenCalledWith(event, 'arg');
-        });
-      });
-
-      it("initializes the player in the simulation", function() {
-      });
-    });
-
-    describe("on connected", function() {
       it("adds the player to the simulation", function() {
+      });
+
+      it("tells the existing players about the new players", function() {
+      });
+
+      it("tells the new plyaer which playerId it has", function() {
       });
     });
 
     describe("on message", function() {
-      it("adds the player to the simulation", function() {
+      it("adds player input to the simulation", function() {
+      });
+
+      it("handles player messages", function() {
       });
     });
 
     describe("on disconnected", function() {
       it("removes the player form the simulation", function() {
+      });
+
+      it("tells existing players that a player has been removed", function() {
       });
     });
   });

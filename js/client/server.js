@@ -32,22 +32,12 @@ module.exports = Machina.Fsm.extend({
     });
   },
 
-  setupConnectionSignalHandlers: function(connection, lobbyServer) {
-    _.each(['startNegotiation', 'shareOffer', 'shareAnswer', 'acceptAnswer', 'shareIceCandidate'], function(event) {
-      connection.on(event, function() {
-        var args = _.union([event], arguments);
-        lobbyServer.emit.apply(lobbyServer, args);
-      });
-    });
-  },
-
   initialize : function(lobbyServer, connectionPool) {
     connectionPool = connectionPool || new ConnectionPool({}, lobbyServer);
 
     var that = this;
     lobbyServer.on('createConnection', function(negotiatorId) {
       var connection = connectionPool.createConnection(negotiatorId, this);
-      that.setupConnectionSignalHandlers(connection, lobbyServer);
 
       connection.on('connected', function(playerId) {
         _.each(that.simulation.playerPositions, function(position, id) {
