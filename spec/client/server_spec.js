@@ -32,6 +32,7 @@ describe("Server", function() {
 
     beforeEach(function() {
       fakeConnection = new EventEmitter();
+      fakeConnection.id = 'c0';
       connectionPool = new ConnectionPool({ 'c0': fakeConnection }, fakeLobbyServer);
       spyOn(connectionPool, 'createConnection').and.returnValue(fakeConnection);
     });

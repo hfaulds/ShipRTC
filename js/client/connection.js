@@ -5,15 +5,16 @@ var RTCPeerPromise = require("./rtc_peer_promise");
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
-  initialize : function (negotiator) {
+  initialize : function (negotiator, id) {
     this.negotiator = negotiator;
+    this.id = id;
   },
 
   setupChannel : function(channel) {
     this.channel = channel;
     this.channel.onopen = function() {
       this.transition("connected");
-      this.emit("connected");
+      this.emit("connected", this.id);
     }.bind(this);
     this.channel.onclose = function(e) {
       this.handle("disconnect");

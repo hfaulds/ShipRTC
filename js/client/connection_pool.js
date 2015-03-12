@@ -21,7 +21,8 @@ function ConnectionPool(connections, negotiator) {
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
   var connectionId = 'c' + _.keys(this.connections).length;
-  var connection = new Connection(new Negotiator(this.negotiator, negotiatorId));
+  var negotiator = new Negotiator(this.negotiator, negotiatorId);
+  var connection = new Connection(negotiator, connectionId);
 
   connection.handle("connect", connectionId);
   this.connections[connectionId] = connection;
@@ -46,23 +47,6 @@ ConnectionPool.prototype.sendAllExcept = function(connectionId, data) {
       that.sendTo(id, data);
     }
   });
-};
-
-ConnectionPool.prototype.createOffer = function(id) {
-  console.log(id);
-  console.log(this.connections);
-};
-
-ConnectionPool.prototype.receiveOffer = function(id, offer) {
-  this.connections[id].handle("receiveOffer", offer);
-};
-
-ConnectionPool.prototype.acceptAnswer = function(id, answer) {
-  this.connections[id].handle("acceptAnswer", answer);
-};
-
-ConnectionPool.prototype.addIceCandidate = function(id, candidate) {
-  this.connections[id].handle("addIceCandidate", candidate);
 };
 
 module.exports = ConnectionPool;

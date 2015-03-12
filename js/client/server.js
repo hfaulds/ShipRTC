@@ -38,7 +38,9 @@ module.exports = Machina.Fsm.extend({
     lobbyServer.on('createConnection', function(negotiatorId) {
       var connection = connectionPool.createConnection(negotiatorId, this);
 
-      connection.on('connected', function(playerId) {
+      connection.on('connected', function() {
+        var playerId = connection.id;
+
         _.each(that.simulation.playerPositions, function(position, id) {
           connectionPool.sendTo(playerId, {
             type: 'newPlayer',
@@ -74,12 +76,12 @@ module.exports = Machina.Fsm.extend({
         that.simulation.removePlayer(playerId);
       });
 
-      connection.on('receiveMessage', function(connectionId, message) {
+      connection.on('receiveMessage', function(message) {
         if(message.type == "playerInput") {
-          that.simulation.playerInputs[connectionId] = message.input;
+          that.simulation.playerInputs[connection.id] = message.input;
         } else {
           that.emit("receiveMessage", message, connectionId);
-          connectionPool.sendAllExcept(connectionId, message);
+          connectionPool.sendAllExcept(connection.id, message);
         }
       });
     });

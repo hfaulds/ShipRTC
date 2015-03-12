@@ -1,7 +1,7 @@
 var _ = require('lodash');
-var io = require('socket.io-client');
 var Machina = require('machina');
 
+var Negotiator = require("./negotiator");
 var Simulation = require('./simulation');
 var Connection = require("./connection");
 
@@ -30,7 +30,7 @@ module.exports = Machina.Fsm.extend({
     var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
     var that = this;
     lobbyServer.on('createConnection', function(negotiatorId, connectionName) {
-      that.connection = new Connection(undefined, 9, negotiatorId, lobbyServer);
+      that.connection = new Connection(new Negotiator(lobbyServer, negotiatorId));
       that.connection.on("connected", function() {
         that.transition("connected");
         that.emit("connected");

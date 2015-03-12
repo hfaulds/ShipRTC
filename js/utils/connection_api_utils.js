@@ -18,7 +18,8 @@ ConnectionApiUtils.createLobby = function() {
 };
 
 ConnectionApiUtils.joinLobby = function(lobbyId) {
-  var client = new Client(window.location.origin);
+  var lobbyServer = io(window.location.origin, {'force new connection': true});
+  var client = new Client(lobbyServer);
   client.on("connected", function(lobbyId) {
     ConnectionResponseActions.connected(client);
   });
