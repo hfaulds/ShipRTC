@@ -1,4 +1,5 @@
 var Connection = require("./connection");
+var Negotiator = require("./negotiator");
 var _ = require('lodash');
 
 function ConnectionPool(connections, negotiator) {
@@ -19,7 +20,7 @@ function ConnectionPool(connections, negotiator) {
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
   var connectionId = 'c' + _.keys(this.connections).length;
-  var connection = new Connection(this.negotiator, negotiatorId);
+  var connection = new Connection(new Negotiator(this.negotiator, negotiatorId));
 
   connection.handle("connect", connectionId);
   this.connections[connectionId] = connection;

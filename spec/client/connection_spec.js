@@ -13,19 +13,19 @@ describe("Connection", function() {
       var negotiator2 = new EventEmitter();
       con2 = new Connection(negotiator2);
 
-      negotiator1.on("shareIceCandidate", function(id, candidate) {
+      negotiator1.on("shareIceCandidate", function(candidate) {
         con2.handle("addIceCandidate", candidate);
       });
 
-      negotiator2.on("shareIceCandidate", function(id, candidate) {
+      negotiator2.on("shareIceCandidate", function(candidate) {
         con1.handle("addIceCandidate", candidate);
       });
 
-      negotiator2.on("shareAnswer", function(id, answer) {
+      negotiator2.on("shareAnswer", function(answer) {
         con1.handle("acceptAnswer", answer);
       });
 
-      negotiator1.on("shareOffer", function(id, offer) {
+      negotiator1.on("shareOffer", function(offer) {
         con2.handle("receiveOffer", offer);
       });
 
