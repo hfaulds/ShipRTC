@@ -7,7 +7,6 @@ var Connection = require("./connection");
 
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
-  simulation: new Simulation(),
 
   tick: function() {
     setTimeout(this.tick.bind(this), 10);
@@ -26,19 +25,22 @@ module.exports = Machina.Fsm.extend({
     });
   },
 
-  initialize : function(lobbyServerUrl) {
-    var lobbyServer = io(lobbyServerUrl, {'force new connection': true});
+  initialize : function(lobbyServer, simulation) {
+    this.simulation = simulation || new Simulation();
+
     var that = this;
     lobbyServer.on('createConnection', function(negotiatorId, connectionName) {
-      that.connection = new Connection(new Negotiator(lobbyServer, negotiatorId));
+      var negotiator = new Negotiator(lobbyServer, negotiatorId);
+      that.connection = new Connection(negotiator);
+
       that.connection.on("connected", function() {
         that.transition("connected");
         that.emit("connected");
       });
-      that.connection.on("disconnected", function(e) {
+      that.connection.on("disconnected", function() {
         that.emit("disconnected");
       });
-      that.connection.on("error", function(e) {
+      that.connection.on("error", function() {
         that.emit("error");
       });
       that.connection.on("receiveMessage", function(message) {
