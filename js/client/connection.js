@@ -5,9 +5,8 @@ var RTCPeerPromise = require("./rtc_peer_promise");
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
-  initialize : function (negotiator, id, negotiatorId) {
+  initialize : function (negotiator, negotiatorId) {
     this.negotiator = negotiator;
-    this.id = id;
     this.negotiatorId = negotiatorId;
   },
 
@@ -37,7 +36,7 @@ module.exports = Machina.Fsm.extend({
 
   states : {
     "disconnected" : {
-      "connect" : function() {
+      "connect" : function(id) {
         var that = this;
         this.connection = new RTCPeerPromise();
         this.connection.onIceCandidate(function(e) {
@@ -45,8 +44,7 @@ module.exports = Machina.Fsm.extend({
             that.negotiator.emit("shareIceCandidate", that.negotiatorId, e.candidate);
           }
         });
-        this.negotiator.emit("startNegotiation", this.negotiatorId, this.id);
-        return this.id;
+        this.negotiator.emit("startNegotiation", this.negotiatorId, id);
       },
       "createOffer" : function() {
         var that = this;

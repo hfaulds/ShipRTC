@@ -61,8 +61,8 @@ describe("ConnectionPool", function() {
 
   describe("#sendAll", function() {
     it("calls send all connections", function() {
-      var connections = _.times(10, function(id) {
-        var connection = new Connection(undefined, id);
+      var connections = _.times(10, function() {
+        var connection = new Connection(fakeNegotiator);
         spyOn(connection, 'handle');
         return connection;
       });
@@ -79,7 +79,7 @@ describe("ConnectionPool", function() {
   describe("#sendAllExcept", function() {
     it("sends to all connections except", function() {
       var connectionsToSendTo = _.times(10, function(id) {
-        var connection = new Connection(fakeNegotiator, id);
+        var connection = new Connection(fakeNegotiator);
         spyOn(connection, 'handle');
         return connection;
       });

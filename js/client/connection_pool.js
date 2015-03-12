@@ -19,17 +19,17 @@ function ConnectionPool(connections, negotiator) {
 
 ConnectionPool.prototype.createConnection = function(negotiatorId) {
   var connectionId = 'c' + _.keys(this.connections).length;
-  var connection = new Connection(this.negotiator, connectionId, negotiatorId);
+  var connection = new Connection(this.negotiator, negotiatorId);
 
-  connection.handle("connect");
+  connection.handle("connect", connectionId);
   this.connections[connectionId] = connection;
   return connection;
 };
 
 ConnectionPool.prototype.sendAll = function(data) {
   var that = this;
-  _.each(this.connections, function(connection) {
-    that.sendTo(connection.id, data);
+  _.each(this.connections, function(_, id) {
+    that.sendTo(id, data);
   });
 };
 
@@ -39,9 +39,9 @@ ConnectionPool.prototype.sendTo = function(connectionId, data) {
 
 ConnectionPool.prototype.sendAllExcept = function(connectionId, data) {
   var that = this;
-  _.each(this.connections, function(connection) {
-    if(connection.id != connectionId) {
-      that.sendTo(connection.id, data);
+  _.each(this.connections, function(_, id) {
+    if(id != connectionId) {
+      that.sendTo(id, data);
     }
   });
 };
