@@ -33,6 +33,7 @@ describe("Server", function() {
     beforeEach(function() {
       fakeConnection = new EventEmitter();
       fakeConnection.id = 'c0';
+      fakeConnection.handle = function(){};
       connectionPool = new ConnectionPool({ 'c0': fakeConnection }, fakeLobbyServer);
       spyOn(connectionPool, 'createConnection').and.returnValue(fakeConnection);
     });
@@ -43,7 +44,7 @@ describe("Server", function() {
 
         var server = new Server(fakeLobbyServer, connectionPool);
         fakeLobbyServer.emit('createConnection', 1);
-        fakeConnection.emit('connected', 'c0');
+        fakeConnection.emit('connected');
 
         expect(connectionPool.sendTo).toHaveBeenCalledWith('c0', {
           type: 'newPlayer',
@@ -55,7 +56,18 @@ describe("Server", function() {
       it("adds the player to the simulation", function() {
       });
 
-      it("tells the existing players about the new players", function() {
+      it("tells the existing players about the new player", function() {
+        spyOn(connectionPool, 'sendAll');
+
+        var server = new Server(fakeLobbyServer, connectionPool);
+        fakeLobbyServer.emit('createConnection', 1);
+        fakeConnection.emit('connected');
+
+        expect(connectionPool.sendAll).toHaveBeenCalledWith({
+          type: 'newPlayer',
+          playerId: 'c0',
+          position: { x: 0, y: 0, rotation: 0 }
+        });
       });
 
       it("tells the new plyaer which playerId it has", function() {

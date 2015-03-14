@@ -1,29 +1,55 @@
 var alt = require('../alt');
+var _ = require('lodash');
+
+if(global.document) var PIXI = require('pixi.js');
+
 var ConnectionResponseActions = require('../actions/connection_response_actions');
 
 function PlayerStore() {
   this.bindActions(ConnectionResponseActions);
-  this.players = {};
+
+  this.gameContainer = new PIXI.DisplayObjectContainer();
+  this.snapshot = {};
+  this.ships = {};
 }
 
-PlayerStore.prototype.onMovePlayer = function(movement) {
-  var player = this.players[movement.playerId];
-  player.x = movement.position.x;
-  player.y = movement.position.y;
-  player.rotation = movement.position.rotation;
-};
+PlayerStore.prototype.onReceiveSnapshot = function(newSnapshot) {
+  var lastSnapshot = this.snapshot;
 
-PlayerStore.prototype.onNewPlayer = function(player) {
-  this.players[player.playerId] = {
-    sprite: "images/PlayerShips/playerShip2_red.png",
-    x: player.position.x,
-    y: player.position.y,
-    rotation: player.position.rotation
-  };
-};
+  var addedPlayerIds = _.difference(
+    _.keys(newSnapshot),
+    _.keys(lastSnapshot)
+  );
 
-PlayerStore.prototype.onRemovePlayer = function(playerId) {
-  delete this.players[playerId];
+  var removedPlayerIds = _.difference(
+    _.keys(lastSnapshot),
+    _.keys(newSnapshot)
+  );
+
+  _.each(addedPlayerIds, function(id) {
+    var player = newSnapshot[id];
+
+    var ship = PIXI.Sprite.fromImage("images/PlayerShips/playerShip2_red.png");
+    ship.pivot.x = ship.width / 2;
+    ship.pivot.y = ship.height / 2;
+
+    this.ships[id] = ship;
+    this.gameContainer.addChild(ship);
+  }.bind(this));
+
+  _.each(removedPlayerIds, function(id) {
+    this.gameContainer.removeChild(this.ships[id]);
+    delete this.ships[id];
+  }.bind(this));
+
+  _.each(newSnapshot, function(player, id) {
+    var ship = this.ships[id];
+    ship.position.x = player.x;
+    ship.position.y = player.y;
+    ship.rotation = player.rotation;
+  }.bind(this));
+
+  this.snapshot = newSnapshot;
 };
 
 module.exports = alt.createStore(PlayerStore);

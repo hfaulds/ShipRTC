@@ -44,21 +44,8 @@ module.exports = Machina.Fsm.extend({
         that.emit("error");
       });
       that.connection.on("receiveMessage", function(message) {
-        if(message.type == 'newPlayer') {
-          that.emit("newPlayer", message);
-        } else if(message.type == 'movePlayer') {
-          if(
-            message.playerId !== that.playerId ||
-            that.simulation.movePlayer(message.playerId, message.position)
-          ) {
-            that.emit('movePlayer', message);
-          }
-        } else if(message.type == 'removePlayer') {
-          that.simulation.removePlayer(message.playerId);
-          that.emit('removePlayer', message.playerId);
-        } else if(message.type == 'controlPlayer') {
-          that.playerId = message.playerId;
-          that.simulation.initPlayer(message.playerId);
+        if(message.type === "snapshot") {
+          that.emit("receiveSnapshot", message);
         } else {
           that.emit("receiveMessage", message, connectionName);
         }

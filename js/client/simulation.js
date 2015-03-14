@@ -30,12 +30,10 @@ Simulation.prototype.tick = function() {
       var movement = movementDirection.apply(new PIXI.Point());
       position.x += movement.x;
       position.y += movement.y;
-      position.dirty = true;
     }
 
     if(input.rotation && input.rotation !== 0) {
       position.rotation += input.rotation * dt / RADIANS_PER_MS;
-      position.dirty = true;
     }
 
     that.playerPositions[id] = position;

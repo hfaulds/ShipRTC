@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var Machina = require('machina');
-if(global.document) var PIXI = require('pixi.js');
 
 var Simulation = require('./simulation');
 var ConnectionPool = require('./connection_pool');
@@ -14,21 +13,12 @@ module.exports = Machina.Fsm.extend({
 
     this.simulation.tick();
 
-    var that = this;
-    _.each(this.simulation.playerPositions, function(position, id) {
-      if(position.dirty) {
-        that.handle("sendMessage", {
-          type: "movePlayer",
-          playerId: id,
-          position: position,
-        });
-        that.emit("movePlayer", {
-          playerId: id,
-          position: position,
-        });
-        position.dirty = false;
-      }
-    });
+    var message = {
+      type: "snapshot",
+      snapshot: _.clone(this.simulation.playerPositions)
+    };
+    this.connectionPool.sendAll(message);
+    this.emit("receiveSnapshot", message);
   },
 
   initialize : function(lobbyServer, connectionPool) {
@@ -39,32 +29,7 @@ module.exports = Machina.Fsm.extend({
       var connection = connectionPool.createConnection(negotiatorId, this);
 
       connection.on('connected', function() {
-        var playerId = connection.id;
-
-        _.each(that.simulation.playerPositions, function(position, id) {
-          connectionPool.sendTo(playerId, {
-            type: 'newPlayer',
-            playerId: id,
-            position: position,
-          });
-        });
-
-        that.simulation.initPlayer(playerId);
-        that.emit("newPlayer", {
-          playerId: playerId,
-          position: that.simulation.playerPositions[playerId]
-        });
-
-        that.connectionPool.sendAll({
-          type: 'newPlayer',
-          playerId: playerId,
-          position: that.simulation.playerPositions[playerId],
-        });
-
-        connectionPool.sendTo(playerId, {
-          type: 'controlPlayer',
-          playerId: playerId
-        });
+        that.simulation.initPlayer(connection.id);
       });
 
       connection.on('disconnected', function(playerId) {
@@ -89,9 +54,8 @@ module.exports = Machina.Fsm.extend({
     lobbyServer.on('serverRegistered', function(lobbyId) {
       that.emit("registered", lobbyId);
       that.transition("registered");
-      that.emit("newPlayer", {
-        playerId: 'server',
-        position: that.simulation.playerPositions.server
+      that.emit("snapshot", {
+        snapshot: that.simulation.playerPositions
       });
     });
 

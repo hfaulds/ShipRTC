@@ -37,14 +37,8 @@ ConnectionApiUtils.addConnectionHandlers = function(connection) {
     ConnectionResponseActions.disconnected(e);
     ConnectionApiUtils.removeConnection(connection);
   });
-  connection.on("newPlayer", function(message) {
-    ConnectionResponseActions.newPlayer(message);
-  });
-  connection.on("removePlayer", function(id) {
-    ConnectionResponseActions.removePlayer(id);
-  });
-  connection.on("movePlayer", function(movement) {
-    ConnectionResponseActions.movePlayer(movement);
+  connection.on("receiveSnapshot", function(message) {
+    ConnectionResponseActions.receiveSnapshot(message.snapshot);
   });
   connection.on("receiveMessage", function(message, sender) {
     ConnectionResponseActions.receiveMessage({

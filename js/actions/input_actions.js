@@ -17,9 +17,9 @@ InputActions.prototype.inputChange = function(keyCode, direction) {
   var newRotation = rotation;
 
   if (keyCode == W) {
-    newForward = 1 * direction;
-  } else if (keyCode == S) {
     newForward = -1 * direction;
+  } else if (keyCode == S) {
+    newForward = 1 * direction;
   } else if (keyCode == A) {
     newRotation = 1 * direction;
   } else if (keyCode == D) {
