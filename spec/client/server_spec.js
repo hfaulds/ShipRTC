@@ -39,38 +39,7 @@ describe("Server", function() {
     });
 
     describe("on connected", function() {
-      it("tells the new player about the existing players", function() {
-        spyOn(connectionPool, 'sendTo');
-
-        var server = new Server(fakeLobbyServer, connectionPool);
-        fakeLobbyServer.emit('createConnection', 1);
-        fakeConnection.emit('connected');
-
-        expect(connectionPool.sendTo).toHaveBeenCalledWith('c0', {
-          type: 'newPlayer',
-          playerId: 'server',
-          position: { x: 0, y: 0, rotation: 0 }
-        });
-      });
-
       it("adds the player to the simulation", function() {
-      });
-
-      it("tells the existing players about the new player", function() {
-        spyOn(connectionPool, 'sendAll');
-
-        var server = new Server(fakeLobbyServer, connectionPool);
-        fakeLobbyServer.emit('createConnection', 1);
-        fakeConnection.emit('connected');
-
-        expect(connectionPool.sendAll).toHaveBeenCalledWith({
-          type: 'newPlayer',
-          playerId: 'c0',
-          position: { x: 0, y: 0, rotation: 0 }
-        });
-      });
-
-      it("tells the new plyaer which playerId it has", function() {
       });
     });
 

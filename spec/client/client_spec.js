@@ -59,15 +59,5 @@ describe("Client", function() {
         client.connection.handle
       ).toHaveBeenCalledWith('sendMessage', {type: 'playerInput', input: input});
     });
-
-    it("updates the simulation with input", function() {
-      spyOn(client.connection, 'handle');
-
-      var playerId = 'foo';
-      client.connection.emit('receiveMessage', {type: 'controlPlayer', playerId: playerId});
-      client.handle('handleInput', input);
-
-      expect(simulation.playerInputs[playerId]).toEqual(input);
-    });
   });
 });
