@@ -38,8 +38,8 @@ module.exports = Machina.Fsm.extend({
         that.simulation.initPlayer(connection.id);
       });
 
-      connection.on('disconnected', function(playerId) {
-        that.simulation.removePlayer(playerId);
+      connection.on('disconnected', function() {
+        that.simulation.removePlayer(connection.id);
       });
 
       connection.on('receiveMessage', function(message) {
