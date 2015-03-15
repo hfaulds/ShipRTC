@@ -18,13 +18,19 @@ module.exports = Machina.Fsm.extend({
       snapshot: _.clone(this.simulation.playerPositions)
     };
     this.connectionPool.sendAll(message);
-    this.emit("receiveSnapshot", message);
   },
 
   initialize : function(lobbyServer, connectionPool) {
-    connectionPool = connectionPool || new ConnectionPool({}, lobbyServer);
-
     var that = this;
+
+    var localConnection = {
+      handle: function(id, message) {
+        var event = 'receive' + _.capitalize(message.type);
+        that.emit(event, message);
+      }
+    };
+    connectionPool = connectionPool || new ConnectionPool({ self: localConnection }, lobbyServer);
+
     lobbyServer.on('createConnection', function(negotiatorId) {
       var connection = connectionPool.createConnection(negotiatorId, this);
 
@@ -33,11 +39,6 @@ module.exports = Machina.Fsm.extend({
       });
 
       connection.on('disconnected', function(playerId) {
-        connectionPool.sendAll({
-          type: 'removePlayer',
-          playerId: playerId,
-        });
-        that.emit('removePlayer', playerId);
         that.simulation.removePlayer(playerId);
       });
 
@@ -45,7 +46,6 @@ module.exports = Machina.Fsm.extend({
         if(message.type == "playerInput") {
           that.simulation.playerInputs[connection.id] = message.input;
         } else {
-          that.emit("receiveMessage", message, connectionId);
           connectionPool.sendAllExcept(connection.id, message);
         }
       });
@@ -54,9 +54,6 @@ module.exports = Machina.Fsm.extend({
     lobbyServer.on('serverRegistered', function(lobbyId) {
       that.emit("registered", lobbyId);
       that.transition("registered");
-      that.emit("snapshot", {
-        snapshot: that.simulation.playerPositions
-      });
     });
 
     this.lobbyServer = lobbyServer;
