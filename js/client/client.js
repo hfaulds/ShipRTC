@@ -14,14 +14,8 @@ module.exports = Machina.Fsm.extend({
 
     var that = this;
 
-    _.each(this.simulation.playerPositions, function(position, id) {
-      if(position.dirty) {
-        that.emit("movePlayer", {
-          playerId: id,
-          position: position,
-        });
-        position.dirty = false;
-      }
+    this.emit('receiveSnapshot', {
+      snapshot: _.clone(this.simulation.playerPositions)
     });
   },
 
@@ -35,6 +29,7 @@ module.exports = Machina.Fsm.extend({
 
       that.connection.on("connected", function() {
         that.transition("connected");
+        that.simulation.initPlayer('self');
         that.emit("connected");
       });
       that.connection.on("disconnected", function() {
@@ -90,9 +85,7 @@ module.exports = Machina.Fsm.extend({
           type: "playerInput",
           input: input,
         });
-        if(this.playerId) {
-          this.simulation.playerInputs[this.playerId] = input;
-        }
+        this.simulation.playerInputs.self = input;
       },
       "sendMessage" : function(data) {
         this.connection.handle('sendMessage', data);

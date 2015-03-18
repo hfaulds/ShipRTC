@@ -8,7 +8,7 @@ var ConnectionResponseActions = require('../actions/connection_response_actions'
 function PlayerStore() {
   this.bindActions(ConnectionResponseActions);
 
-  this.gameContainer = new PIXI.DisplayObjectContainer();
+  if(global.document) this.gameContainer = new PIXI.DisplayObjectContainer();
   this.snapshot = {};
   this.ships = {};
 }

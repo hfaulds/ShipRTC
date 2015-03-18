@@ -13,11 +13,16 @@ module.exports = Machina.Fsm.extend({
 
     this.simulation.tick();
 
-    var message = {
-      type: "snapshot",
-      snapshot: _.clone(this.simulation.playerPositions)
-    };
-    this.connectionPool.sendAll(message);
+    this.connectionPool.each(function(connection, playerId) {
+      var snapshot = _.clone(this.simulation.playerPositions);
+      snapshot.self = snapshot[playerId];
+      delete snapshot[playerId];
+
+      connection.handle('sendMessage', {
+        type: 'snapshot',
+        snapshot: snapshot
+      });
+    }.bind(this));
   },
 
   initialize : function(lobbyServer, connectionPool) {
@@ -29,7 +34,7 @@ module.exports = Machina.Fsm.extend({
         that.emit(event, message);
       }
     };
-    connectionPool = connectionPool || new ConnectionPool({ self: localConnection }, lobbyServer);
+    connectionPool = connectionPool || new ConnectionPool({ server: localConnection }, lobbyServer);
 
     lobbyServer.on('createConnection', function(negotiatorId) {
       var connection = connectionPool.createConnection(negotiatorId, this);

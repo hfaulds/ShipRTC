@@ -29,6 +29,10 @@ ConnectionPool.prototype.createConnection = function(negotiatorId) {
   return connection;
 };
 
+ConnectionPool.prototype.each = function(callback) {
+  _.each(this.connections, callback);
+};
+
 ConnectionPool.prototype.sendAll = function(data) {
   var that = this;
   _.each(this.connections, function(_, id) {
