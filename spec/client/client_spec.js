@@ -42,22 +42,4 @@ describe("Client", function() {
       });
     });
   });
-
-  describe("handleInput", function() {
-    var input = 'foo';
-
-    beforeEach(function() {
-      client.connection.emit('connected');
-    });
-
-    it("tells the server about input", function() {
-      spyOn(client.connection, 'handle');
-
-      client.handle('handleInput', input);
-
-      expect(
-        client.connection.handle
-      ).toHaveBeenCalledWith('sendMessage', {type: 'playerInput', input: input});
-    });
-  });
 });

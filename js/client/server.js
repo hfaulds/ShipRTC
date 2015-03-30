@@ -20,13 +20,15 @@ module.exports = Machina.Fsm.extend({
 
       connection.handle('sendMessage', {
         type: 'snapshot',
-        snapshot: snapshot
+        snapshot: snapshot,
+        snapshotId: this.snapshotIds[playerId],
       });
     }.bind(this));
   },
 
   initialize : function(lobbyServer, connectionPool) {
     var that = this;
+    this.snapshotIds = {};
 
     var localConnection = {
       handle: function(id, message) {
@@ -50,6 +52,7 @@ module.exports = Machina.Fsm.extend({
       connection.on('receiveMessage', function(message) {
         if(message.type == "playerInput") {
           that.simulation.playerInputs[connection.id] = message.input;
+          that.snapshotIds[connection.id] = message.snapshotId;
         } else {
           connectionPool.sendAllExcept(connection.id, message);
         }

@@ -5,22 +5,35 @@ var Negotiator = require("./negotiator");
 var Simulation = require('./simulation');
 var Connection = require("./connection");
 
+var SnapshotPool = require('./snapshot_pool');
+
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
 
   tick: function() {
     setTimeout(this.tick.bind(this), 10);
-    this.simulation.tick();
 
-    var that = this;
+    this.simulation.tick(this.snapshotPool.currentSnapshot());
+
+    var snapshotId = this.connection.sentCount;
+
+    this.connection.handle('sendMessage', {
+      type: "playerInput",
+      input: this.simulation.playerInputs.self,
+      snapshotId: snapshotId,
+    });
+
+    var snapshot = _.cloneDeep(this.simulation.playerPositions);
+    this.snapshotPool.addSnapshot(snapshotId, snapshot);
 
     this.emit('receiveSnapshot', {
-      snapshot: _.clone(this.simulation.playerPositions)
+      snapshot: this.snapshotPool.currentSnapshot()
     });
   },
 
   initialize : function(lobbyServer, simulation) {
     this.simulation = simulation || new Simulation();
+    this.snapshotPool = new SnapshotPool();
 
     var that = this;
     lobbyServer.on('createConnection', function(negotiatorId, connectionName) {
@@ -40,7 +53,8 @@ module.exports = Machina.Fsm.extend({
       });
       that.connection.on("receiveMessage", function(message) {
         if(message.type === "snapshot") {
-          that.emit("receiveSnapshot", message);
+          that.snapshotPool.adjustSnapshots(message.snapshotId, message.snapshot);
+          that.simulation.playerPositions = that.snapshotPool.currentSnapshot();
         } else {
           that.emit("receiveMessage", message, connectionName);
         }
@@ -81,10 +95,6 @@ module.exports = Machina.Fsm.extend({
         setTimeout(this.tick.bind(this), 10);
       },
       "handleInput" : function(input) {
-        this.connection.handle('sendMessage', {
-          type: "playerInput",
-          input: input,
-        });
         this.simulation.playerInputs.self = input;
       },
       "sendMessage" : function(data) {

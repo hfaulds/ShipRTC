@@ -33,29 +33,16 @@ Simulation.prototype.tick = function() {
     }
 
     if(input.rotation && input.rotation !== 0) {
-      position.rotation += input.rotation * dt / RADIANS_PER_MS;
+      position.rotation += input.rotation * dt / RADIANS_PER_MS * (1 + Math.random() / 10);
     }
 
     that.playerPositions[id] = position;
   });
 };
 
-Simulation.prototype.movePlayer = function(playerId, position) {
-  var currentPos = this.playerPositions[playerId];
-  var substantialMovement = ( Math.abs(currentPos.x - position.x) +
-                             Math.abs(currentPos.y - position.y) ) > 200;
-  var substantialRotation = Math.abs(currentPos.rotation - position.rotation) > (Math.PI / 20);
-
-  if(substantialMovement || substantialRotation) {
-    this.playerPositions[playerId] = position;
-    return true;
-  } else {
-    return false;
-  }
-};
-
 Simulation.prototype.initPlayer = function(playerId) {
   this.playerPositions[playerId] = { x: 0, y:0, rotation: 0 };
+  this.playerInputs[playerId] = { forward: 0, rotation: 0 };
 };
 
 Simulation.prototype.removePlayer = function(playerId) {

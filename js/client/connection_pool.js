@@ -26,6 +26,9 @@ ConnectionPool.prototype.createConnection = function(negotiatorId) {
 
   connection.handle("connect", connectionId);
   this.connections[connectionId] = connection;
+  connection.on('disconnected', function() {
+    delete this.connections[connectionId];
+  }.bind(this));
   return connection;
 };
 

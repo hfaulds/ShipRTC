@@ -8,6 +8,8 @@ module.exports = Machina.Fsm.extend({
   initialize : function (negotiator, id) {
     this.negotiator = negotiator;
     this.id = id;
+    this.receivedCount = 0;
+    this.sentCount = 0;
   },
 
   setupChannel : function(channel) {
@@ -107,9 +109,15 @@ module.exports = Machina.Fsm.extend({
 
     "connected" : {
       "sendMessage" : function(data) {
-        this.channel.send(JSON.stringify(data));
+        setTimeout(function() {
+          if(this.channel.readyState == "open") {
+            this.sentCount++;
+            this.channel.send(JSON.stringify(data));
+          }
+        }.bind(this), 10);
       },
       "receiveMessage" : function(data) {
+        this.receivedCount++;
         this.emit("receiveMessage", JSON.parse(data));
       },
       "disconnect" : function() {
