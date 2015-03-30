@@ -33,7 +33,7 @@ Simulation.prototype.tick = function() {
     }
 
     if(input.rotation && input.rotation !== 0) {
-      position.rotation += input.rotation * dt / RADIANS_PER_MS * (1 + Math.random() / 10);
+      position.rotation += input.rotation * dt / RADIANS_PER_MS;
     }
 
     that.playerPositions[id] = position;
