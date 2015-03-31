@@ -34,7 +34,9 @@ module.exports = Machina.Fsm.extend({
       handle: function(id, message) {
         var event = 'receive' + _.capitalize(message.type);
         that.emit(event, message);
-      }
+      },
+      setSimulatedLatency: function() {},
+      setSimulatedPacketLoss: function() {},
     };
     connectionPool = connectionPool || new ConnectionPool({ server: localConnection }, lobbyServer);
 
@@ -67,6 +69,20 @@ module.exports = Machina.Fsm.extend({
     this.lobbyServer = lobbyServer;
     this.connectionPool = connectionPool;
   },
+
+  setSimulatedLatency : function(latency) {
+    _.each(this.connectionPool.connections, function(connection) {
+      connection.setSimulatedLatency(latency);
+    });
+  },
+
+  setSimulatedPacketLoss : function(packetLoss) {
+    _.each(this.connectionPool.connections, function(connection) {
+      connection.setSimulatedPacketLoss(packetLoss);
+    });
+  },
+
+  toggleClientPrediction : function() {},
 
   states : {
     "unregistered" : {

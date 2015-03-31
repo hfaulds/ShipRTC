@@ -8,8 +8,12 @@ module.exports = Machina.Fsm.extend({
   initialize : function (negotiator, id) {
     this.negotiator = negotiator;
     this.id = id;
+
     this.receivedCount = 0;
     this.sentCount = 0;
+
+    this.simulatedLatency = 0;
+    this.simulatedPacketLoss = 0;
   },
 
   setupChannel : function(channel) {
@@ -110,7 +114,20 @@ module.exports = Machina.Fsm.extend({
     "connected" : {
       "sendMessage" : function(data) {
         this.sentCount++;
-        this.channel.send(JSON.stringify(data));
+
+        if(this.simulatedPacketLoss > 0) {
+          if(Math.random() > this.simulatedPacketLoss / 100) return;
+        }
+
+        if(this.simulatedLatency > 0) {
+          setTimeout(function() {
+            if(this.channel.readyState === "open") {
+              this.channel.send(JSON.stringify(data));
+            }
+          }.bind(this), this.simulatedLatency);
+        } else {
+          this.channel.send(JSON.stringify(data));
+        }
       },
       "receiveMessage" : function(data) {
         this.receivedCount++;
@@ -121,5 +138,13 @@ module.exports = Machina.Fsm.extend({
         this.transition("disconnected");
       }
     }
-  }
+  },
+
+  setSimulatedLatency : function(latency) {
+    this.simulatedLatency = latency;
+  },
+
+  setSimulatedPacketLoss : function(packetLoss) {
+    this.simulatedPacketLoss = packetLoss;
+  },
 });

@@ -28,6 +28,18 @@ ConnectionApiUtils.joinLobby = function(lobbyId) {
   client.handle('connectToServer', lobbyId);
 };
 
+ConnectionApiUtils.setSimulatedLatency = function(latency) {
+  this.connection.setSimulatedLatency(latency);
+};
+
+ConnectionApiUtils.setSimulatedPacketLoss = function(packetLoss) {
+  this.connection.setSimulatedPacketLoss(packetLoss);
+};
+
+ConnectionApiUtils.toggleClientPrediction = function(toggle) {
+  this.connection.toggleClientPrediction(toggle);
+};
+
 ConnectionApiUtils.addConnectionHandlers = function(connection) {
   connection.on("disconnected", function(e) {
     ConnectionResponseActions.disconnected(e);

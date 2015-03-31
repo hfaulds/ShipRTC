@@ -54,7 +54,9 @@ module.exports = Machina.Fsm.extend({
       that.connection.on("receiveMessage", function(message) {
         if(message.type === "snapshot") {
           that.snapshotPool.adjustSnapshots(message.snapshotId, message.snapshot);
-          that.simulation.playerPositions = that.snapshotPool.currentSnapshot();
+          if(that.snapshotPool.currentSnapshot()) {
+            that.simulation.playerPositions = that.snapshotPool.currentSnapshot();
+          }
         } else {
           that.emit("receiveMessage", message, connectionName);
         }
@@ -79,6 +81,31 @@ module.exports = Machina.Fsm.extend({
     });
 
     this.lobbyServer = lobbyServer;
+  },
+
+  setSimulatedLatency : function(latency) {
+    this.connection.setSimulatedLatency(latency);
+  },
+
+  setSimulatedPacketLoss : function(packetLoss) {
+    this.connection.setSimulatedPacketLoss(packetLoss);
+  },
+
+  toggleClientPrediction : function(toggle) {
+    if(toggle) {
+      this.snapshotPool = new SnapshotPool();
+    } else {
+      var snapshot = this.snapshotPool.currentSnapshot();
+      this.snapshotPool = {
+        addSnapshot: function() {},
+        adjustSnapshots: function(id, s) {
+          snapshot = s;
+        },
+        currentSnapshot: function() {
+          return snapshot;
+        }
+      };
+    }
   },
 
   states : {

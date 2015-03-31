@@ -6,7 +6,8 @@ var UNITS_PER_MS = 0.5;
 
 function Simulation() {
   this.playerPositions = {
-    'server' : { x: 0, y:0, rotation: 0 }
+    'server' : { x: 0, y:0, rotation: 0 },
+    'self' : { x: 0, y:0, rotation: 0 }
   };
   this.playerInputs = { };
   this.lastTickTime = new Date();
@@ -33,7 +34,7 @@ Simulation.prototype.tick = function() {
     }
 
     if(input.rotation && input.rotation !== 0) {
-      position.rotation += input.rotation * dt / RADIANS_PER_MS;
+      position.rotation += input.rotation * dt / RADIANS_PER_MS * (1 + Math.random() / 10);
     }
 
     that.playerPositions[id] = position;
