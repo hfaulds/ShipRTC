@@ -32,4 +32,4 @@ MessageStore.prototype.incrementMessageCount = function(sender) {
   return newCount;
 };
 
-module.exports = alt.createStore(MessageStore);
+module.exports = alt.createStore(MessageStore, 'MessageStore');

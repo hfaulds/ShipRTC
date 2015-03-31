@@ -41,28 +41,20 @@ module.exports = React.createFactory(
 
     render: function() {
       return (
-        <html>
-          <link rel="stylesheet" href="css/foundation.css"/>
-          <title>
-            Peer Lobbies
-          </title>
+        <div>
+          <div className="contain-to-grid sticky">
+            <nav className="top-bar" data-topbar role="navigation" data-options="sticky_on: large">
+              <ul className="title-area">
+                <li className="name">
+                  <h1><a href="#"> Peer Lobbies </a></h1>
+                </li>
+              </ul>
+            </nav>
+          </div>
 
-          <body>
-            <div className="contain-to-grid sticky">
-              <nav className="top-bar" data-topbar role="navigation" data-options="sticky_on: large">
-                <ul className="title-area">
-                  <li className="name">
-                    <h1><a href="#"> Peer Lobbies </a></h1>
-                  </li>
-                </ul>
-              </nav>
-            </div>
+          { this.state.page }
 
-            { this.state.page }
-
-            <script type="text/javascript" src="/js/bundle.js"/>
-          </body>
-        </html>
+        </div>
       );
     }
   })

@@ -52,4 +52,4 @@ PlayerStore.prototype.onReceiveSnapshot = function(newSnapshot) {
   this.snapshot = newSnapshot;
 };
 
-module.exports = alt.createStore(PlayerStore);
+module.exports = alt.createStore(PlayerStore, 'PlayerStore');

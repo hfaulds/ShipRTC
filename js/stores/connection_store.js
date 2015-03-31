@@ -28,4 +28,4 @@ ConnectionStore.prototype.onDisconnected = function() {
   this.connectionState = ConnectionStore.DISCONNECTED;
 };
 
-module.exports = alt.createStore(ConnectionStore);
+module.exports = alt.createStore(ConnectionStore, 'ConnectionStore');

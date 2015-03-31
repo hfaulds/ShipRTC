@@ -4,8 +4,11 @@ var Socket = require('socket.io');
 var _ = require('lodash');
 
 require('node-jsx').install({extension: '.jsx'});
+
 React = require('react');
+var alt = require('../alt');
 var App = require('../components/app');
+
 function LobbyServer(port) {
   this.app = Express();
   this.server = require('http').Server(this.app);
@@ -23,12 +26,27 @@ LobbyServer.prototype.listen = function(port) {
   that.app.use('/', Express.static(__dirname + '/../../public'));
 
   that.app.get('/', function (req, res) {
+    var appHtml = React.renderToString(App({
+      lobbyServerUrl: "http://localhost:" + (process.env.PORT || 9999),
+      lobbies: _.keys(that.lobbies),
+    }));
+
     res.send(
-      React.renderToString(App({
-        lobbyServerUrl: "http://localhost:" + (process.env.PORT || 9999),
-        lobbies: _.keys(that.lobbies),
-      }))
+      [
+        "<html>",
+        "<link rel='stylesheet' href='css/foundation.css'/>",
+        "<title>",
+        "Peer Lobbies",
+        "</title>",
+        "<body data-snapshot='" + alt.takeSnapshot() + "'>",
+        appHtml,
+        "</body>",
+        "<script type='text/javascript' src='/js/bundle.js'>",
+        "</script>",
+        "</html>",
+      ].join("\n")
     );
+
   });
 
   that.app.get('/lobbies', function (req, res) {
