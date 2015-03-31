@@ -5,16 +5,10 @@ var _ = require('lodash');
 var PlayerStore = require('../stores/player_store');
 var InputActions = require('../actions/input_actions');
 
-if(global.document) {
-  var PIXI = require('pixi.js');
-}
-
 module.exports = React.createClass({
-  WIDTH: 1000,
   HEIGHT: 600,
 
   componentWillMount: function() {
-    this.stage = new PIXI.Stage(0x888888),
     this.gameContainer = PlayerStore.getState().gameContainer;
     PlayerStore.listen(this._onChange)
   },
@@ -32,9 +26,16 @@ module.exports = React.createClass({
   },
 
   componentDidMount: function() {
-    this.renderer = new PIXI.WebGLRenderer(this.WIDTH, this.HEIGHT, {
-      view: this.getDOMNode()
-    });
+    var PIXI = require('pixi.js');
+
+    var canvas = this.getDOMNode();
+
+    this.stage = new PIXI.Stage(0x888888),
+    this.renderer = new PIXI.WebGLRenderer(
+      canvas.clientWidth,
+      canvas.clientHeight,
+      { view: canvas }
+    );
 
     var loader = new PIXI.AssetLoader([
       "images/PlayerShips/playerShip2_blue.png",
@@ -76,6 +77,6 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    return <canvas id="canvas" />;
+    return <canvas style={{width: '100%', height: this.HEIGHT}}/>
   }
 });
