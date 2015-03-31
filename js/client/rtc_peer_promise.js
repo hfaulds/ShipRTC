@@ -1,9 +1,7 @@
 var Bluebird = require("bluebird");
 
 var SERVERS =  [
-  {url: "stun:stun.turnservers.com:3478"},
-  {url: "turn:85.25.243.74:3478?transport=udp", "username": "EeangVrudNzW", "credential": "5a32994dbdc81331d414664bdeb1345e" },
-  {url: "turn:85.25.243.74:3478?transport=tcp", "username": "EeangVrudNzW", "credential": "5a32994dbdc81331d414664bdeb1345e" }
+  { url: "stun:global.stun.twilio.com:3478?transport=udp" }
 ];
 
 var CONFIG = {iceServers: SERVERS};
