@@ -77,13 +77,13 @@ module.exports = React.createClass({
               <input type="range" min="0" max="500" step="10"
                 value={this.state.simulatedLatency}
                 onChange={this._setSimulatedLatency}/>
-              { this.state.simulatedLatency }
+              { this.state.simulatedLatency } ms
 
               <h6> Simulated Packet Loss </h6>
               <input type="range" min="0" max="15" step="1"
                 value={this.state.simulatedPacketLoss}
                 onChange={this._setSimulatedPacketLoss}/>
-              { this.state.simulatedPacketLoss }
+              { this.state.simulatedPacketLoss } %
 
               <h6> Client Prediction </h6>
               <input type="checkbox"
