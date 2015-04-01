@@ -10,7 +10,7 @@
     "machina": "1.0.0",
     "bluebird": "2.9.21",
     "request": "2.54.0",
-    "pixi.js": "3.0.0-rc4",
+    "pixi.js": "2.2.7",
     "react": "0.13.1",
     "reactify": "1.1.0",
     "node-jsx": "0.12.4",
