@@ -18,15 +18,8 @@ PlayerStore.prototype.onReceiveSnapshot = function(newSnapshot) {
   if(ImageStore.getState().imagesLoaded) {
     var lastSnapshot = this.snapshot;
 
-    var addedPlayerIds = _.difference(
-      _.keys(newSnapshot),
-      _.keys(lastSnapshot)
-    );
-
-    var removedPlayerIds = _.difference(
-      _.keys(lastSnapshot),
-      _.keys(newSnapshot)
-    );
+    var addedPlayerIds = _.difference(_.keys(newSnapshot), _.keys(lastSnapshot));
+    var removedPlayerIds = _.difference(_.keys(lastSnapshot), _.keys(newSnapshot));
 
     _.each(addedPlayerIds, function(id) {
       var player = newSnapshot[id];
@@ -44,15 +37,10 @@ PlayerStore.prototype.onReceiveSnapshot = function(newSnapshot) {
       delete this.ships[id];
     }.bind(this));
 
-    var center = {
-      x: newSnapshot.self.x,
-      y: newSnapshot.self.y,
-    };
-
     _.each(newSnapshot, function(player, id) {
       var ship = this.ships[id];
-      ship.position.x = player.x - center.x;
-      ship.position.y = player.y - center.y;
+      ship.position.x = player.x - newSnapshot.self.x;
+      ship.position.y = player.y - newSnapshot.self.y;
       ship.rotation = player.rotation;
     }.bind(this));
 

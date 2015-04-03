@@ -9,16 +9,29 @@ var InputActions = require('../actions/input_actions');
 module.exports = React.createClass({
   HEIGHT: 600,
 
-  componentWillMount: function() {
-    this.gameContainer = PlayerStore.getState().gameContainer;
-  },
-
   _keyDown: function(e) {
     InputActions.inputChange(e.keyCode, 1);
   },
 
   _keyUp: function(e) {
     InputActions.inputChange(e.keyCode, 0);
+  },
+
+  _onChange: function() {
+    if(this.background) {
+      var playerPosition = PlayerStore.getState().snapshot.self;
+      this.background.tilePosition.x = -playerPosition.x;
+      this.background.tilePosition.y = -playerPosition.y;
+    }
+  },
+
+  componentWillUnmount: function() {
+    PlayerStore.unlisten(this._onChange)
+  },
+
+  componentWillMount: function() {
+    this.gameContainer = PlayerStore.getState().gameContainer;
+    PlayerStore.listen(this._onChange)
   },
 
   componentDidMount: function() {
@@ -33,10 +46,10 @@ module.exports = React.createClass({
     this.gameContainer.position.y = renderer.height / 2;
 
     var backgroundTexture = PIXI.Texture.fromImage("images/Backgrounds/darkPurple.png");
-    var background = new PIXI.TilingSprite(backgroundTexture, renderer.width, renderer.height);
-    background.pivot.x = background.width / 2;
-    background.pivot.y = background.height / 2;
-    this.gameContainer.addChildAt(background, 0);
+    this.background = new PIXI.TilingSprite(backgroundTexture, renderer.width, renderer.height);
+    this.background.pivot.x = this.background.width / 2;
+    this.background.pivot.y = this.background.height / 2;
+    this.gameContainer.addChildAt(this.background, 0);
 
     var animate = function() {
       window.requestAnimationFrame(animate);
