@@ -12,7 +12,9 @@ function ImageLoadingUtils() {
 ImageLoadingUtils.loadImages = function() {
   var PIXI = require('pixi.js');
   var loader = new PIXI.AssetLoader(ASSETS);
-  loader.onComplete = ImageLoadingActions.imagesLoaded;
+  loader.onComplete = function() {
+    ImageLoadingActions.imagesLoaded();
+  };
   loader.load();
 };
 

@@ -8,7 +8,7 @@ function ImageStore() {
 }
 
 ImageStore.prototype.onImagesLoaded = function() {
-  this.imageState = true;
+  this.imagesLoaded = true;
 };
 
 module.exports = alt.createStore(ImageStore, 'ImageStore');

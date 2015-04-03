@@ -3,6 +3,7 @@ var React = require('react');
 var _ = require('lodash');
 
 var PlayerStore = require('../stores/player_store');
+
 var InputActions = require('../actions/input_actions');
 
 module.exports = React.createClass({
@@ -10,11 +11,6 @@ module.exports = React.createClass({
 
   componentWillMount: function() {
     this.gameContainer = PlayerStore.getState().gameContainer;
-    PlayerStore.listen(this._onChange)
-  },
-
-  componentWillUnmount: function() {
-    PlayerStore.unlisten(this._onChange)
   },
 
   _keyDown: function(e) {
@@ -29,32 +25,28 @@ module.exports = React.createClass({
     var PIXI = require('pixi.js');
 
     var canvas = this.getDOMNode();
+    var stage = new PIXI.Stage(0x888888);
+    stage.addChild(this.gameContainer);
 
-    this.stage = new PIXI.Stage(0x888888),
-    this.renderer = new PIXI.WebGLRenderer(
-      canvas.clientWidth,
-      canvas.clientHeight,
-      { view: canvas }
-    );
+    var renderer = new PIXI.WebGLRenderer(canvas.clientWidth, canvas.clientHeight, { view: canvas });
+    this.gameContainer.position.x = renderer.width / 2;
+    this.gameContainer.position.y = renderer.height / 2;
 
     var backgroundTexture = PIXI.Texture.fromImage("images/Backgrounds/darkPurple.png");
-    var background = new PIXI.TilingSprite(backgroundTexture, this.renderer.width, this.renderer.height);
+    var background = new PIXI.TilingSprite(backgroundTexture, renderer.width, renderer.height);
     background.pivot.x = background.width / 2;
     background.pivot.y = background.height / 2;
-
-    this.gameContainer.position.x = this.renderer.width / 2;
-    this.gameContainer.position.y = this.renderer.height / 2;
-
-    this.stage.addChild(this.gameContainer);
-    this.gameContainer.addChild(background);
+    this.gameContainer.addChildAt(background, 0);
 
     var animate = function() {
       window.requestAnimationFrame(animate);
-      this.renderer.render(this.stage);
+      renderer.render(stage);
     }.bind(this);
 
     window.addEventListener("keydown", this._keyDown);
     window.addEventListener("keyup", this._keyUp);
+
+    animate();
   },
 
   componentWillUnmount: function() {
