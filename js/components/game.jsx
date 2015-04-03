@@ -37,11 +37,6 @@ module.exports = React.createClass({
       { view: canvas }
     );
 
-    var loader = new PIXI.AssetLoader([
-      "images/PlayerShips/playerShip2_blue.png",
-      "images/PlayerShips/playerShip2_red.png",
-      "images/Backgrounds/darkPurple.png",
-    ]);
     var backgroundTexture = PIXI.Texture.fromImage("images/Backgrounds/darkPurple.png");
     var background = new PIXI.TilingSprite(backgroundTexture, this.renderer.width, this.renderer.height);
     background.pivot.x = background.width / 2;
@@ -57,15 +52,6 @@ module.exports = React.createClass({
       window.requestAnimationFrame(animate);
       this.renderer.render(this.stage);
     }.bind(this);
-
-    loader.onComplete = function() {
-      _.each(PlayerStore.getState().ships, function(ship) {
-        ship.pivot.x = ship.width / 2;
-        ship.pivot.y = ship.height / 2;
-      });
-      animate();
-    }.bind(this);
-    loader.load();
 
     window.addEventListener("keydown", this._keyDown);
     window.addEventListener("keyup", this._keyUp);
