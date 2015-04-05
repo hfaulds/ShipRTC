@@ -3,12 +3,14 @@ var React = require('react');
 var _ = require('lodash');
 
 var PlayerStore = require('../stores/player_store');
+var ImageStore = require('../stores/image_store');
 
 var InputActions = require('../actions/input_actions');
 
-module.exports = React.createClass({
-  HEIGHT: 600,
+var HEIGHT = 600;
+var WIDTH = 720;
 
+module.exports = React.createClass({
   _keyDown: function(e) {
     InputActions.inputChange(e.keyCode, 1);
   },
@@ -17,57 +19,73 @@ module.exports = React.createClass({
     InputActions.inputChange(e.keyCode, 0);
   },
 
-  _onChange: function() {
-    if(this.background) {
-      var playerPosition = PlayerStore.getState().snapshot.self;
-      this.background.tilePosition.x = -playerPosition.x;
-      this.background.tilePosition.y = -playerPosition.y;
-    }
+  getInitialState: function() {
+    return PlayerStore.getState();
   },
 
-  componentWillUnmount: function() {
-    PlayerStore.unlisten(this._onChange)
+  _onChange: function() {
+    this.setState(PlayerStore.getState());
   },
 
   componentWillMount: function() {
-    this.gameContainer = PlayerStore.getState().gameContainer;
     PlayerStore.listen(this._onChange)
   },
 
   componentDidMount: function() {
-    var PIXI = require('pixi.js');
-
-    var canvas = this.getDOMNode();
-    var stage = new PIXI.Stage(0x888888);
-    stage.addChild(this.gameContainer);
-
-    var renderer = new PIXI.WebGLRenderer(canvas.clientWidth, canvas.clientHeight, { view: canvas });
-    this.gameContainer.position.x = renderer.width / 2;
-    this.gameContainer.position.y = renderer.height / 2;
-
-    var backgroundTexture = PIXI.Texture.fromImage("images/Backgrounds/darkPurple.png");
-    this.background = new PIXI.TilingSprite(backgroundTexture, renderer.width, renderer.height);
-    this.background.pivot.x = this.background.width / 2;
-    this.background.pivot.y = this.background.height / 2;
-    this.gameContainer.addChildAt(this.background, 0);
-
-    var animate = function() {
-      window.requestAnimationFrame(animate);
-      renderer.render(stage);
-    }.bind(this);
-
     window.addEventListener("keydown", this._keyDown);
     window.addEventListener("keyup", this._keyUp);
-
-    animate();
   },
 
   componentWillUnmount: function() {
+    PlayerStore.unlisten(this._onChange)
     window.removeEventListener("keydown", this._keyDown);
     window.removeEventListener("keyup", this._keyUp);
   },
 
   render: function() {
-    return <canvas style={{width: '100%', height: this.HEIGHT}}/>
+    var ReactPIXI = require("react-pixi");
+    var Stage = ReactPIXI.Stage;
+    var TilingSprite = ReactPIXI.TilingSprite;
+    var Sprite = ReactPIXI.Sprite;
+    var DisplayObjectContainer = ReactPIXI.DisplayObjectContainer;
+
+    var ImageStore = require('../stores/image_store');
+    var shipTexture = ImageStore.getState().textures["images/PlayerShips/playerShip2_red.png"];
+
+    return (
+      <Stage width={WIDTH} height={HEIGHT}>
+        <TilingSprite
+          width={WIDTH}
+          height={HEIGHT}
+          image="images/Backgrounds/darkPurple.png"
+          tilePosition={{
+            x: -this.state.players.self.x,
+            y: -this.state.players.self.y,
+          }}
+        />
+
+        <DisplayObjectContainer
+          x={WIDTH/2}
+          y={HEIGHT/2}
+        >
+          {
+            _.map(this.state.players, function(ship) {
+              return <Sprite
+                image="images/PlayerShips/playerShip2_red.png"
+                pivot={{
+                  x: shipTexture.width/2,
+                  y: shipTexture.height/2
+                }}
+                position={{
+                  x: ship.x - this.state.players.self.x,
+                  y: ship.y - this.state.players.self.y
+                }}
+                rotation={ship.rotation}
+              />
+            }.bind(this))
+          }
+        </DisplayObjectContainer>
+      </Stage>
+    )
   }
 });

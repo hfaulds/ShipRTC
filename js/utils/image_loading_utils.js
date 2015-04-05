@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var ImageLoadingActions = require('../actions/image_loading_actions');
 
 var ASSETS = [
@@ -13,7 +15,11 @@ ImageLoadingUtils.loadImages = function() {
   var PIXI = require('pixi.js');
   var loader = new PIXI.AssetLoader(ASSETS);
   loader.onComplete = function() {
-    ImageLoadingActions.imagesLoaded();
+    var textures = _.reduce(ASSETS, function(r, url) {
+      r[url] = PIXI.Texture.fromImage(url);
+      return r;
+    }, {});
+    ImageLoadingActions.imagesLoaded(textures);
   };
   loader.load();
 };
