@@ -6,6 +6,7 @@ require('./stores/lobby_store');
 require('./stores/message_store');
 require('./stores/player_store');
 require('./stores/game_settings_store');
+require('./stores/image_store');
 
 var domNode = document.querySelector("body");
 var snapshot = domNode.dataset.snapshot;
