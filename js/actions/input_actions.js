@@ -1,5 +1,4 @@
 var alt = require('../alt');
-var ConnectionApiUtils = require('../utils/connection_api_utils');
 
 var W = 87;
 var A = 65;
@@ -26,16 +25,15 @@ InputActions.prototype.inputChange = function(keyCode, direction) {
     newRotation = -1 * direction;
   }
 
+
   if(newForward != forward || newRotation != rotation) {
     forward = newForward;
     rotation = newRotation;
-    ConnectionApiUtils.handleInput({
+    this.dispatch({
       forward: forward,
       rotation: rotation,
     });
   }
-
-  this.dispatch();
 };
 
 module.exports = alt.createActions(InputActions);
