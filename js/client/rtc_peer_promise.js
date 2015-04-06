@@ -1,5 +1,3 @@
-var Bluebird = require("bluebird");
-
 var SERVERS =  [
   { url: "stun:global.stun.twilio.com:3478?transport=udp" }
 ];
