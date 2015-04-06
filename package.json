@@ -11,12 +11,12 @@
     "machina": "1.0.0",
     "request": "2.54.0",
     "pixi.js": "2.2.7",
-    "react-pixi": "0.4.0",
+    "react-pixi": "https://github.com/hfaulds/react-pixi",
     "react": "0.12.2",
     "reactify": "1.1.0",
     "node-jsx": "0.12.4",
     "alt": "0.14.5",
-    "browserify": "8.1.0"
+    "browserify": "9.0.2"
   },
   "devDependencies": {
     "jasmine-core": "^2.2.0",
@@ -27,7 +27,7 @@
     "watchify": "latest"
   },
   "scripts": {
-    "postinstall": "browserify -t reactify js/client_main.js > public/js/bundle.js",
+    "postinstall": "browserify --version && browserify -t reactify js/client_main.js > public/js/bundle.js",
     "watch-js": "watchify --debug -t reactify js/client_main.js -o public/js/bundle.js"
   },
   "engines": {
