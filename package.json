@@ -11,7 +11,7 @@
     "machina": "1.0.0",
     "request": "2.54.0",
     "pixi.js": "2.2.7",
-    "react-pixi": "https://github.com/hfaulds/react-pixi",
+    "react-pixi": "https://github.com/Izzimach/react-pixi/tarball/master",
     "react": "0.12.2",
     "reactify": "1.1.0",
     "node-jsx": "0.12.4",
