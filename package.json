@@ -16,7 +16,8 @@
     "reactify": "1.1.0",
     "node-jsx": "0.12.4",
     "alt": "0.14.5",
-    "browserify": "9.0.2"
+    "browserify": "9.0.2",
+    "matter-js": "https://github.com/hfaulds/matter-js/tarball/master"
   },
   "devDependencies": {
     "jasmine-core": "^2.2.0",

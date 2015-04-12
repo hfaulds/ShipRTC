@@ -59,8 +59,8 @@ module.exports = React.createClass({
           height={HEIGHT}
           image="images/Backgrounds/darkPurple.png"
           tilePosition={{
-            x: -this.state.players.self.x,
-            y: -this.state.players.self.y,
+            x: -this.state.players.self.position.x,
+            y: -this.state.players.self.position.y,
           }}
         />
 
@@ -69,18 +69,19 @@ module.exports = React.createClass({
           y={HEIGHT/2}
         >
           {
-            _.map(this.state.players, function(ship) {
+            _.map(this.state.players, function(ship, id) {
               return <Sprite
+                key={id}
                 image="images/PlayerShips/playerShip2_red.png"
                 pivot={{
                   x: shipTexture.width/2,
                   y: shipTexture.height/2
                 }}
                 position={{
-                  x: ship.x - this.state.players.self.x,
-                  y: ship.y - this.state.players.self.y
+                  x: ship.position.x - this.state.players.self.position.x,
+                  y: ship.position.y - this.state.players.self.position.y
                 }}
-                rotation={ship.rotation}
+                rotation={ship.angle}
               />
             }.bind(this))
           }

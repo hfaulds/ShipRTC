@@ -7,7 +7,10 @@ function PlayerStore() {
   this.bindActions(ConnectionResponseActions);
 
   this.players = {
-    self: { x:0, y:0 }
+    self: {
+      position: {x:0, y:0 },
+      angle: 0,
+    }
   };
 }
 
