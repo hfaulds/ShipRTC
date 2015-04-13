@@ -10,11 +10,6 @@ var RADIANS_PER_MS = 200;
 var UNITS_PER_MS = 0.05;
 
 function Simulation() {
-  this.playerPositions = {
-    'server' : this.createRect(),
-    'self' : this.createRect(),
-  };
-  this.playerInputs = { };
   this.lastTickTime = new Date();
 
   var options = {
@@ -38,12 +33,18 @@ function Simulation() {
   this.timeScalePrev = 1;
   this.correction = 1;
   this.engine = Engine.create(options);
-  World.add(this.engine.world, _.values(this.playerPositions));
+
+  this.playerBounds = {
+    'server' : this.createRect(),
+    'self' : this.createRect(),
+  };
+  this.playerInputs = { };
 }
 
 Simulation.prototype.createRect = function() {
   var rect = Bodies.rectangle(-56, -37.5, 112, 75);
   rect.frictionAir = 0.01;
+  World.add(this.engine.world, rect);
   return rect;
 };
 
@@ -76,7 +77,7 @@ Simulation.prototype.tick = function() {
 
 
   _.each(this.playerInputs, function(input, id) {
-    var rect = that.playerPositions[id];
+    var rect = that.playerBounds[id];
 
     if(input.forward && input.forward !== 0) {
       Body.applyForce(
@@ -104,13 +105,34 @@ Simulation.prototype.tick = function() {
 };
 
 Simulation.prototype.initPlayer = function(playerId) {
-  this.playerPositions[playerId] = this.createRect();
+  this.playerBounds[playerId] = this.createRect();
   this.playerInputs[playerId] = { forward: 0, angle: 0 };
 };
 
 Simulation.prototype.removePlayer = function(playerId) {
   delete this.playerInputs[playerId];
-  delete this.playerPositions[playerId];
+  delete this.playerBounds[playerId];
+};
+
+Simulation.prototype.setPlayerPositions = function(snapshot) {
+  _.each(snapshot, function(player, id) {
+    var rect = this.playerBounds[id] || this.createRect();
+    rect.position.x = player.x;
+    rect.position.y = player.y;
+    rect.angle = player.rotation;
+    this.playerBounds[id] = rect;
+  }.bind(this));
+};
+
+Simulation.prototype.playerPositions = function() {
+  return _.reduce(this.playerBounds, function(positions, rect, id) {
+    positions[id] = {
+      x: rect.position.x,
+      y: rect.position.y,
+      rotation: rect.angle,
+    };
+    return positions;
+  }, {});
 };
 
 module.exports = Simulation;

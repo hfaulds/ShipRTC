@@ -23,7 +23,7 @@ module.exports = Machina.Fsm.extend({
       snapshotId: snapshotId,
     });
 
-    var snapshot = _.cloneDeep(this.simulation.playerPositions);
+    var snapshot = this.simulation.playerPositions();
     this.snapshotPool.addSnapshot(snapshotId, snapshot);
 
     this.emit('receiveSnapshot', {
@@ -55,7 +55,7 @@ module.exports = Machina.Fsm.extend({
         if(message.type === "snapshot") {
           that.snapshotPool.adjustSnapshots(message.snapshotId, message.snapshot);
           if(that.snapshotPool.currentSnapshot()) {
-            that.simulation.playerPositions = that.snapshotPool.currentSnapshot();
+            that.simulation.setPlayerPositions(that.snapshotPool.currentSnapshot());
           }
         } else {
           that.emit("receiveMessage", message, connectionName);

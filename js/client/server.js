@@ -14,7 +14,7 @@ module.exports = Machina.Fsm.extend({
     this.simulation.tick();
 
     this.connectionPool.each(function(connection, playerId) {
-      var snapshot = _.clone(this.simulation.playerPositions);
+      var snapshot = _.clone(this.simulation.playerPositions());
       snapshot.self = snapshot[playerId];
       delete snapshot[playerId];
 

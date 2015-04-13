@@ -59,8 +59,8 @@ module.exports = React.createClass({
           height={HEIGHT}
           image="images/Backgrounds/darkPurple.png"
           tilePosition={{
-            x: -this.state.players.self.position.x,
-            y: -this.state.players.self.position.y,
+            x: -this.state.players.self.x,
+            y: -this.state.players.self.y,
           }}
         />
 
@@ -78,10 +78,10 @@ module.exports = React.createClass({
                   y: shipTexture.height/2
                 }}
                 position={{
-                  x: ship.position.x - this.state.players.self.position.x,
-                  y: ship.position.y - this.state.players.self.position.y
+                  x: ship.x - this.state.players.self.x,
+                  y: ship.y - this.state.players.self.y
                 }}
-                rotation={ship.angle}
+                rotation={ship.rotation}
               />
             }.bind(this))
           }
