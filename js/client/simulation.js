@@ -30,7 +30,6 @@ function Simulation() {
 
   this._deltaSampleSize = 60;
   this.deltaHistory = [];
-  this.timeScalePrev = 1;
   this.correction = 1;
   this.engine = Engine.create(options);
 
@@ -60,21 +59,11 @@ Simulation.prototype.tick = function() {
   dt = Math.min.apply(null, this.deltaHistory);
 
   var timing = this.engine.timing;
-  delta = delta < timing.deltaMin ? timing.deltaMin : delta;
-  delta = delta > timing.deltaMax ? timing.deltaMax : delta;
+  delta = Math.max(timing.deltaMin, delta);
+  delta = Math.min(timing.deltaMax, delta);
 
   this.correction = delta / timing.delta;
-
   timing.delta = delta;
-
-  if (this.timeScalePrev !== 0)
-    this.correction *= timing.timeScale / this.timeScalePrev;
-
-  if (timing.timeScale === 0)
-    this.correction = 0;
-
-  this.timeScalePrev = timing.timeScale;
-
 
   _.each(this.playerInputs, function(input, id) {
     var rect = that.playerBounds[id];
