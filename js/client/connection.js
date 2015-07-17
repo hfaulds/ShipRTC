@@ -1,6 +1,10 @@
 var _ = require('lodash');
 var Machina = require('machina');
 var RTCPeerPromise = require("./rtc_peer_promise");
+if (typeof window !== 'undefined') {
+  var RTCSessionDescription = window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.RTCSessionDescription;
+  var RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+}
 
 module.exports = Machina.Fsm.extend({
   initialState: "disconnected",
@@ -88,7 +92,7 @@ module.exports = Machina.Fsm.extend({
         var that = this;
         this.connection.setRemoteDescription(new RTCSessionDescription(desc)).
           then(function() {
-            that.negotiator.emit("acceptAnswer");
+            that.negotiator.emit("answerAccepted");
             that.transition("remoteDescriptionSet");
           }).catch(function(e) {
             that.error(e);

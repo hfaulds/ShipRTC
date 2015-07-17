@@ -96,9 +96,6 @@ module.exports = Machina.Fsm.extend({
       },
       "handleInput" : function(input) {
         this.simulation.playerInputs.server = input;
-      },
-      "sendMessage" : function(data) {
-        this.connectionPool.sendAll(data);
       }
     }
   }

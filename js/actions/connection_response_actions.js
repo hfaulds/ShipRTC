@@ -4,7 +4,7 @@ var LobbyActions = require('../actions/lobby_actions');
 var ImageLoadingUtils = require('../utils/image_loading_utils');
 
 function ConnectionResponseActions() {
-  this.generateActions('receiveMessage', 'receiveSnapshot');
+  this.generateActions('receiveSnapshot');
 }
 
 ConnectionResponseActions.prototype.connected = function() {
