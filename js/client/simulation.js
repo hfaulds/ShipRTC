@@ -10,8 +10,6 @@ var RADIANS_PER_MS = 200;
 var UNITS_PER_MS = 0.05;
 
 function Simulation() {
-  this.lastTickTime = new Date();
-
   var options = {
     render: {
       canvas : {},
@@ -28,16 +26,10 @@ function Simulation() {
     }
   };
 
-  this._deltaSampleSize = 60;
-  this.deltaHistory = [];
-  this.correction = 1;
   this.engine = Engine.create(options);
-
   this.playerBounds = {
-    'server' : this.createRect(),
     'self' : this.createRect(),
   };
-  this.playerInputs = { };
 }
 
 Simulation.prototype.createRect = function() {
@@ -47,25 +39,40 @@ Simulation.prototype.createRect = function() {
   return rect;
 };
 
+Simulation.prototype.applyInputs = function(dt, inputs) {
+  var that = this;
+  _.each(inputs, function(input) {
+    var rect = that.playerBounds[input.id];
+
+    if(input.forward == -1 || input.forward == 1) {
+      Body.applyForce(
+        rect,
+        rect.position,
+        Vector.rotate(
+          {
+            x: 0,
+            y: input.forward * UNITS_PER_MS
+          },
+          rect.angle
+        )
+      );
+    }
+
+    if(input.rotation == -1 || input.rotation == 1) {
+      Body.rotate(
+        rect,
+        input.rotation * dt / RADIANS_PER_MS * (1 + Math.random() / 10)
+      );
+    }
+  });
+
+  Engine.update(this.engine, timeSlice, 1);
+};
+
 Simulation.prototype.tick = function() {
   var that = this;
 
-  var currentTickTime = new Date();
-  var delta = currentTickTime - this.lastTickTime;
-  this.lastTickTime = currentTickTime;
-
-  this.deltaHistory.push(delta);
-  this.deltaHistory = this.deltaHistory.slice(-this._deltaSampleSize);
-  dt = Math.min.apply(null, this.deltaHistory);
-
-  var timing = this.engine.timing;
-  delta = Math.max(timing.deltaMin, delta);
-  delta = Math.min(timing.deltaMax, delta);
-
-  this.correction = delta / timing.delta;
-  timing.delta = delta;
-
-  _.each(this.playerInputs, function(input, id) {
+  _.each(playerInputs, function(input, id) {
     var rect = that.playerBounds[id];
 
     if(input.forward && input.forward !== 0) {

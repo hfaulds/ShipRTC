@@ -78,10 +78,6 @@ ConnectionStore.prototype.onSendMessage = function(message) {
   this.connection.handle("sendMessage", message);
 };
 
-ConnectionStore.prototype.onHandleInput = function(input) {
-  this.connection.handle("handleInput", input);
-};
-
 ConnectionStore.prototype.onInputChange = function(input) {
   this.connection.handle("handleInput", input);
 };
