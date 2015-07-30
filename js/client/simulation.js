@@ -6,7 +6,7 @@ var Body = require('matter-js/src/body/Body');
 var World = require('matter-js/src/body/World');
 var Bodies = require('matter-js/src/factory/Bodies');
 
-var RADIANS_PER_MS = 200;
+var RADIANS_PER_MS = 0.5;
 var UNITS_PER_MS = 0.05;
 
 function Simulation() {
@@ -27,9 +27,7 @@ function Simulation() {
   };
 
   this.engine = Engine.create(options);
-  this.playerBounds = {
-    'self' : this.createRect(),
-  };
+  this.playerBounds = {};
 }
 
 Simulation.prototype.createRect = function() {
@@ -45,68 +43,28 @@ Simulation.prototype.applyInputs = function(dt, inputs) {
     var rect = that.playerBounds[input.id];
 
     if(input.forward == -1 || input.forward == 1) {
-      Body.applyForce(
-        rect,
-        rect.position,
-        Vector.rotate(
-          {
-            x: 0,
-            y: input.forward * UNITS_PER_MS
-          },
-          rect.angle
-        )
+      rect.force = Vector.rotate(
+        {
+          x: 0,
+          y: input.forward * UNITS_PER_MS
+        },
+        rect.angle
       );
     }
 
     if(input.rotation == -1 || input.rotation == 1) {
-      Body.rotate(
-        rect,
-        input.rotation * dt / RADIANS_PER_MS * (1 + Math.random() / 10)
-      );
+      rect.torque = input.rotation * RADIANS_PER_MS;
     }
   });
 
-  Engine.update(this.engine, timeSlice, 1);
-};
-
-Simulation.prototype.tick = function() {
-  var that = this;
-
-  _.each(playerInputs, function(input, id) {
-    var rect = that.playerBounds[id];
-
-    if(input.forward && input.forward !== 0) {
-      Body.applyForce(
-        rect,
-        rect.position,
-        Vector.rotate(
-          {
-            x: 0,
-            y: input.forward * UNITS_PER_MS
-          },
-          rect.angle
-        )
-      );
-    }
-
-    if(input.rotation && input.rotation !== 0) {
-      Body.rotate(
-        rect,
-        input.rotation * dt / RADIANS_PER_MS * (1 + Math.random() / 10)
-      );
-    }
-  });
-
-  Engine.update(this.engine, dt, this.correction);
+  Engine.update(this.engine, dt, 1);
 };
 
 Simulation.prototype.initPlayer = function(playerId) {
   this.playerBounds[playerId] = this.createRect();
-  this.playerInputs[playerId] = { forward: 0, angle: 0 };
 };
 
 Simulation.prototype.removePlayer = function(playerId) {
-  delete this.playerInputs[playerId];
   delete this.playerBounds[playerId];
 };
 
