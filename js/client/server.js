@@ -7,8 +7,10 @@ var ConnectionPool = require('./connection_pool');
 
 module.exports = Machina.Fsm.extend({
   initialState: "unregistered",
+
   simulation: new Simulation(),
   id: 'self',
+  remoteInputs: [],
 
   tickRate: 16,
   physicsTimeStep: 10,
@@ -23,17 +25,20 @@ module.exports = Machina.Fsm.extend({
     setTimeout(this.tick.bind(this), this.tickRate);
     var realTime = window.performance.now();
 
-    var localInput = this.getLocalInput();
+    var localInput = this.getLocalInput(realTime);
     var inputs = this.getNetworkInputs();
     inputs.push(localInput);
 
-    while (this.simulationTime < realTime) {
-      this.simulationTime += this.physicsTimeStep;
+    var inputsForTimeSlice = function(input) {
+      return input.dt >= (realTime - this.simulationTime);
+    }.bind(this);
 
-      //_.select(inputs, function(input) {
-        //return input.dt < realTime - this.simulationTime;
-      //});
-      this.simulation.applyInputs(this.physicsTimeStep, inputs);
+    while (this.simulationTime < realTime) {
+      this.simulation.applyInputs(
+        this.physicsTimeStep,
+        _.select(inputs, inputsForTimeSlice)
+      );
+      this.simulationTime += this.physicsTimeStep;
     }
 
     this.sendSnapshots(this.simulation);
@@ -90,23 +95,25 @@ module.exports = Machina.Fsm.extend({
           var connection = connectionPool.createConnection(negotiatorId, this);
 
           connection.on('connected', function() {
-            //that.simulation.initPlayer(connection.id);
+            that.simulation.initPlayer(connection.id);
           });
 
           connection.on('disconnected', function() {
-            //that.simulation.removePlayer(connection.id);
+            that.simulation.removePlayer(connection.id);
           });
 
           connection.on('receiveMessage', function(message) {
             if(message.type == "playerInput") {
-              //that.simulation.playerInputs[connection.id] = message.input;
-              //that.snapshotIds[connection.id] = message.snapshotId;
+              that.remoteInputs.push(
+                _.merge(message.input, {id: connection.id})
+              );
             }
           });
         });
 
         this.input = {};
         this.simulationTime = window.performance.now();
+        this.simulation.initPlayer(this.id);
         setTimeout(this.tick.bind(this), this.tickRate);
       },
       "handleInput" : function(input) {
